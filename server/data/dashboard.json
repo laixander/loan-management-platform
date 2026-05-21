@@ -1,0 +1,64 @@
+{
+    "stats": {
+        "totalActiveLoans": 47,
+        "pendingApprovals": 8,
+        "monthlyCollections": 245000,
+        "totalOutstanding": 3250000,
+        "totalDisbursed": 8750000,
+        "collectionRate": 94.2
+    },
+    "recentApplications": [
+        { "id": 1, "employeeName": "Maria Santos", "loanType": "Salary Loan", "amount": 50000, "status": "Pending", "date": "2026-05-18", "term": 12 },
+        { "id": 2, "employeeName": "Juan Dela Cruz", "loanType": "Emergency Loan", "amount": 25000, "status": "Approved", "date": "2026-05-17", "term": 6 },
+        { "id": 3, "employeeName": "Ana Reyes", "loanType": "Calamity Loan", "amount": 30000, "status": "Disbursed", "date": "2026-05-15", "term": 12 },
+        { "id": 4, "employeeName": "Carlos Garcia", "loanType": "Equipment Loan", "amount": 75000, "status": "Pending", "date": "2026-05-14", "term": 24 },
+        { "id": 5, "employeeName": "Rosa Lim", "loanType": "Salary Loan", "amount": 40000, "status": "Approved", "date": "2026-05-13", "term": 12 },
+        { "id": 6, "employeeName": "Pedro Aquino", "loanType": "Cash Advance", "amount": 10000, "status": "Disbursed", "date": "2026-05-12", "term": 3 },
+        { "id": 7, "employeeName": "Elena Tan", "loanType": "Salary Loan", "amount": 60000, "status": "Rejected", "date": "2026-05-11", "term": 18 },
+        { "id": 8, "employeeName": "Miguel Torres", "loanType": "Emergency Loan", "amount": 20000, "status": "Pending", "date": "2026-05-10", "term": 6 }
+    ],
+    "loanTypes": [
+        { "id": 1, "name": "Salary Loan", "maxAmount": 100000, "interestRate": 6, "activeLoans": 18, "totalDisbursed": 3500000 },
+        { "id": 2, "name": "Emergency Loan", "maxAmount": 50000, "interestRate": 3, "activeLoans": 12, "totalDisbursed": 1800000 },
+        { "id": 3, "name": "Calamity Loan", "maxAmount": 50000, "interestRate": 0, "activeLoans": 5, "totalDisbursed": 750000 },
+        { "id": 4, "name": "Equipment Loan", "maxAmount": 150000, "interestRate": 8, "activeLoans": 7, "totalDisbursed": 1900000 },
+        { "id": 5, "name": "Cash Advance", "maxAmount": 20000, "interestRate": 0, "activeLoans": 5, "totalDisbursed": 800000 }
+    ],
+    "repayments": [
+        { "id": 1, "employeeName": "Maria Santos", "loanRef": "LN-2026-001", "loanType": "Salary Loan", "outstandingBalance": 35000, "totalPaid": 15000, "nextDeduction": "2026-06-01", "progressPercent": 30 },
+        { "id": 2, "employeeName": "Juan Dela Cruz", "loanRef": "LN-2026-002", "loanType": "Emergency Loan", "outstandingBalance": 18000, "totalPaid": 7000, "nextDeduction": "2026-06-01", "progressPercent": 28 },
+        { "id": 3, "employeeName": "Ana Reyes", "loanRef": "LN-2026-003", "loanType": "Calamity Loan", "outstandingBalance": 22000, "totalPaid": 8000, "nextDeduction": "2026-06-15", "progressPercent": 27 },
+        { "id": 4, "employeeName": "Pedro Aquino", "loanRef": "LN-2026-004", "loanType": "Cash Advance", "outstandingBalance": 5000, "totalPaid": 5000, "nextDeduction": "2026-06-01", "progressPercent": 50 },
+        { "id": 5, "employeeName": "Rosa Lim", "loanRef": "LN-2026-005", "loanType": "Salary Loan", "outstandingBalance": 28000, "totalPaid": 12000, "nextDeduction": "2026-06-15", "progressPercent": 30 }
+    ],
+    "monthlyDisbursements": [
+        { "month": "Jan", "amount": 820000 },
+        { "month": "Feb", "amount": 650000 },
+        { "month": "Mar", "amount": 940000 },
+        { "month": "Apr", "amount": 710000 },
+        { "month": "May", "amount": 1100000 },
+        { "month": "Jun", "amount": 880000 }
+    ],
+    "monthlyCollections": [
+        { "month": "Jan", "amount": 245000 },
+        { "month": "Feb", "amount": 310000 },
+        { "month": "Mar", "amount": 280000 },
+        { "month": "Apr", "amount": 350000 },
+        { "month": "May", "amount": 320000 },
+        { "month": "Jun", "amount": 290000 }
+    ],
+    "loansByStatus": [
+        { "status": "Active", "count": 47 },
+        { "status": "Pending", "count": 8 },
+        { "status": "Completed", "count": 32 },
+        { "status": "Rejected", "count": 5 },
+        { "status": "Defaulted", "count": 2 }
+    ],
+    "loansByType": [
+        { "type": "Salary Loan", "count": 18 },
+        { "type": "Emergency Loan", "count": 12 },
+        { "type": "Calamity Loan", "count": 5 },
+        { "type": "Equipment Loan", "count": 7 },
+        { "type": "Cash Advance", "count": 5 }
+    ]
+}

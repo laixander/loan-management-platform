@@ -1,0 +1,46 @@
+[
+    {
+        "id": 1,
+        "loanApplicationId": 3,
+        "loanRef": "LN-2026-003",
+        "transactionType": "Disbursement",
+        "amount": 30000,
+        "balanceBefore": 0,
+        "balanceAfter": 30000,
+        "description": "Initial loan disbursement",
+        "transactionDate": "2026-05-18T09:00:00Z"
+    },
+    {
+        "id": 2,
+        "loanApplicationId": 6,
+        "loanRef": "LN-2026-006",
+        "transactionType": "Disbursement",
+        "amount": 10000,
+        "balanceBefore": 0,
+        "balanceAfter": 10000,
+        "description": "Initial loan disbursement",
+        "transactionDate": "2026-04-14T15:00:00Z"
+    },
+    {
+        "id": 3,
+        "loanApplicationId": 6,
+        "loanRef": "LN-2026-006",
+        "transactionType": "Repayment",
+        "amount": 3333.33,
+        "balanceBefore": 10000,
+        "balanceAfter": 6666.67,
+        "description": "First payroll deduction",
+        "transactionDate": "2026-04-30T17:00:00Z"
+    },
+    {
+        "id": 4,
+        "loanApplicationId": 6,
+        "loanRef": "LN-2026-006",
+        "transactionType": "Repayment",
+        "amount": 3333.33,
+        "balanceBefore": 6666.67,
+        "balanceAfter": 3333.34,
+        "description": "Second payroll deduction",
+        "transactionDate": "2026-05-15T17:00:00Z"
+    }
+]
