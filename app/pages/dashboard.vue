@@ -8,7 +8,7 @@ import { Line, Bar, Doughnut } from 'vue-chartjs'
 // Page Configuration
 // ============================================================================
 definePageMeta({
-    title: 'Loan Management',
+    title: 'Dashboard',
 })
 
 // ============================================================================
@@ -153,58 +153,64 @@ function getStatusColor(status: string): string {
     </div>
 
     <!-- ── Row 1: Line Chart + Doughnut ────────────────────────── -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        <UCard variant="subtle" class="shadow-sm lg:col-span-2">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h3 class="text-base font-semibold">Disbursements vs Collections</h3>
-                    <p class="text-xs text-muted mt-0.5">Monthly financial flow comparison</p>
-                </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
+        <AppCard 
+            title="Disbursements vs Collections"
+            description="Monthly financial flow comparison"
+            variant="subtle" 
+            class="shadow-sm lg:col-span-2"
+        >
+            <!-- Put the Badge on the right side of the header -->
+            <template #after>
                 <UBadge variant="soft" color="primary">6 Months</UBadge>
-            </div>
+            </template>
+            <!-- Card Body Content -->
             <div class="h-[280px] w-full">
                 <Line :data="disbursementVsCollectionData" :options="multiSeriesOptions" />
             </div>
-        </UCard>
+        </AppCard>
 
-        <UCard variant="subtle" class="shadow-sm">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h3 class="text-base font-semibold">Loan Status</h3>
-                    <p class="text-xs text-muted mt-0.5">Distribution by status</p>
-                </div>
+        <AppCard 
+            title="Loan Status"
+            description="Distribution by status"
+            variant="subtle" 
+            class="shadow-sm"
+        >
+            <template #after>
                 <UBadge variant="soft" color="primary">All Time</UBadge>
-            </div>
+            </template>
             <div class="h-[280px] w-full">
                 <Doughnut :data="loansByStatusData" :options="doughnutOptions" />
             </div>
-        </UCard>
+        </AppCard>
     </div>
 
     <!-- ── Row 2: Bar Chart + Recent Applications ──────────────── -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        <UCard variant="subtle" class="shadow-sm">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h3 class="text-base font-semibold">Loans by Type</h3>
-                    <p class="text-xs text-muted mt-0.5">Active loan distribution</p>
-                </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
+        <AppCard 
+            title="Loans by Type"
+            description="Active loan distribution"
+            variant="subtle" 
+            class="shadow-sm"
+        >
+            <template #after>
                 <UBadge variant="soft" color="primary">Current</UBadge>
-            </div>
+            </template>
             <div class="h-[280px] w-full">
                 <Bar :data="loansByTypeData" :options="defaultOptions" />
             </div>
-        </UCard>
+        </AppCard>
 
-        <UCard variant="subtle" class="shadow-sm lg:col-span-2">
-            <div class="flex justify-between items-center mb-4">
-                <div>
-                    <h3 class="text-base font-semibold">Recent Applications</h3>
-                    <p class="text-xs text-muted mt-0.5">Latest loan application activity</p>
-                </div>
+        <AppCard 
+            title="Recent Applications"
+            description="Latest loan application activity"
+            variant="subtle" 
+            class="shadow-sm lg:col-span-2"
+        >
+            <template #after>
                 <UBadge variant="soft" color="primary">{{
                     dashboard?.recentApplications?.length ?? 0 }} entries</UBadge>
-            </div>
+            </template>
 
             <!-- Applications Table -->
             <div v-if="dashboard?.recentApplications?.length" class="overflow-x-auto">
@@ -235,7 +241,7 @@ function getStatusColor(status: string): string {
                             <td class="py-2.5 px-3 text-muted">{{ app.loanType }}</td>
                             <td class="py-2.5 px-3 text-right font-mono">₱{{ app.amount.toLocaleString() }}</td>
                             <td class="py-2.5 px-3 text-center">
-                                <UBadge :color="(getStatusColor(app.status) as any)" variant="subtle" size="xs">
+                                <UBadge :color="(getStatusColor(app.status) as any)" variant="subtle">
                                     {{ app.status }}
                                 </UBadge>
                             </td>
@@ -253,41 +259,43 @@ function getStatusColor(status: string): string {
                 <p class="text-sm font-semibold text-neutral-900 dark:text-white">No applications yet</p>
                 <p class="text-xs text-muted mt-1">Applications will appear here once data is deployed.</p>
             </div>
-        </UCard>
+        </AppCard>
     </div>
 
     <!-- ── Row 3: Loan Type Cards + Top Repayments ─────────────── -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
         <!-- Loan Types Overview -->
-        <UCard variant="subtle" class="shadow-sm">
-            <div class="flex justify-between items-center mb-4">
-                <div>
-                    <h3 class="text-base font-semibold">Loan Type Overview</h3>
-                    <p class="text-xs text-muted mt-0.5">Configured loan products</p>
-                </div>
+        <AppCard 
+            title="Loan Type Overview"
+            description="Configured loan products"
+            variant="subtle" 
+            class="shadow-sm"
+        >
+            <template #after>
                 <UBadge variant="soft" color="primary">{{ dashboard?.loanTypes?.length ?? 0 }} types</UBadge>
-            </div>
+            </template>
 
             <div v-if="dashboard?.loanTypes?.length" class="space-y-3">
-                <div v-for="loanType in dashboard.loanTypes" :key="loanType.id"
-                    class="flex items-center justify-between p-3 rounded-lg bg-white shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2">
-                            <h4 class="text-sm font-semibold truncate">{{ loanType.name }}</h4>
-                            <UBadge variant="subtle" color="secondary" size="xs">
-                                {{ loanType.activeLoans }} active
-                            </UBadge>
+                <UCard v-for="loanType in dashboard.loanTypes" :key="loanType.id" variant="soft" class="bg-white dark:bg-muted shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h4 class="text-sm font-semibold truncate">{{ loanType.name }}</h4>
+                                <UBadge variant="subtle" color="secondary" size="xs">
+                                    {{ loanType.activeLoans }} active
+                                </UBadge>
+                            </div>
+                            <div class="flex items-center gap-3 mt-1">
+                                <span class="text-xs text-muted">Max: ₱{{ loanType.maxAmount.toLocaleString() }}</span>
+                                <span class="text-xs text-muted">{{ loanType.interestRate }}% interest</span>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-3 mt-1">
-                            <span class="text-xs text-muted">Max: ₱{{ loanType.maxAmount.toLocaleString() }}</span>
-                            <span class="text-xs text-muted">{{ loanType.interestRate }}% interest</span>
+                        <div class="text-right shrink-0 ml-4">
+                            <span class="text-sm font-bold">{{ formatCurrency(loanType.totalDisbursed) }}</span>
+                            <span class="text-[10px] text-muted block">disbursed</span>
                         </div>
                     </div>
-                    <div class="text-right shrink-0 ml-4">
-                        <span class="text-sm font-bold">{{ formatCurrency(loanType.totalDisbursed) }}</span>
-                        <span class="text-[10px] text-muted block">disbursed</span>
-                    </div>
-                </div>
+                </UCard>
             </div>
 
             <!-- Empty state -->
@@ -298,21 +306,21 @@ function getStatusColor(status: string): string {
                 <p class="text-sm font-semibold text-neutral-900 dark:text-white">No loan types configured</p>
                 <p class="text-xs text-muted mt-1">Loan products will appear here once data is deployed.</p>
             </div>
-        </UCard>
+        </AppCard>
 
         <!-- Top Repayments -->
-        <UCard variant="subtle" class="shadow-sm">
-            <div class="flex justify-between items-center mb-4">
-                <div>
-                    <h3 class="text-base font-semibold">Active Repayments</h3>
-                    <p class="text-xs text-muted mt-0.5">Outstanding balances and progress</p>
-                </div>
+        <AppCard 
+            title="Active Repayments"
+            description="Outstanding balances and progress"
+            variant="subtle" 
+            class="shadow-sm"
+        >
+            <template #after>
                 <UBadge variant="soft" color="primary">{{ dashboard?.repayments?.length ?? 0 }} active</UBadge>
-            </div>
+            </template>
 
             <div v-if="dashboard?.repayments?.length" class="space-y-3">
-                <div v-for="rep in dashboard.repayments" :key="rep.id"
-                    class="p-3 rounded-lg  bg-white shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
+                <UCard v-for="rep in dashboard.repayments" :key="rep.id" variant="soft" class="bg-white dark:bg-muted shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
                     <div class="flex items-center justify-between mb-2">
                         <div>
                             <h4 class="text-sm font-semibold">{{ rep.employeeName }}</h4>
@@ -325,10 +333,7 @@ function getStatusColor(status: string): string {
                     </div>
                     <div class="flex items-center gap-3">
                         <div class="flex-1">
-                            <div class="h-1.5 bg-muted rounded-full overflow-hidden">
-                                <div class="h-full bg-primary rounded-full transition-all duration-500"
-                                    :style="{ width: `${rep.progressPercent}%` }" />
-                            </div>
+                            <UProgress :model-value="rep.progressPercent" size="sm" />
                         </div>
                         <span class="text-xs font-semibold text-primary shrink-0">{{ rep.progressPercent }}%</span>
                     </div>
@@ -336,7 +341,7 @@ function getStatusColor(status: string): string {
                         <span>Paid: ₱{{ rep.totalPaid.toLocaleString() }}</span>
                         <span>Next: {{ rep.nextDeduction }}</span>
                     </div>
-                </div>
+                </UCard>
             </div>
 
             <!-- Empty state -->
@@ -347,6 +352,6 @@ function getStatusColor(status: string): string {
                 <p class="text-sm font-semibold text-neutral-900 dark:text-white">No active repayments</p>
                 <p class="text-xs text-muted mt-1">Repayment records will appear here once data is deployed.</p>
             </div>
-        </UCard>
+        </AppCard>
     </div>
 </template>

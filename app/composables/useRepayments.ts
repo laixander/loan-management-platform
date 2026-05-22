@@ -15,7 +15,7 @@ export const useRepayments = () => {
     const isLoading = useState('repayments-loading', () => false)
     const isHydrated = ref(false)
     const toast = useAppToast()
-    const logger = useLogger('repayments')
+    const { logRepaymentRecorded, logRepaymentCleared } = useAppLogger()
 
     const isPending = computed(() => !isHydrated.value || isLoading.value)
 
@@ -93,7 +93,7 @@ export const useRepayments = () => {
 
         saveToStorage([newRecord, ...transactions.value])
         toast.success('Transaction Recorded', `Successfully recorded ₱${amount.toLocaleString()} for ${application.loanRef}.`)
-        logger.addLog(`Recorded ${type} of ₱${amount} for ${application.loanRef}`, 'repayment.recorded', 'success')
+        logRepaymentRecorded(type, amount, application.loanRef)
         return newRecord
     }
 
@@ -108,7 +108,7 @@ export const useRepayments = () => {
         }
         if (!quiet) {
             toast.success('Ledger Cleared', 'All transactions have been removed.')
-            logger.addLog('Cleared ledger', 'repayment.cleared', 'warn')
+            logRepaymentCleared()
         }
     }
 

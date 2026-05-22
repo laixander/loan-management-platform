@@ -21,7 +21,7 @@ definePageMeta({
     title: 'Loan Types',
     isTable: true,
     headerActions: [
-        { label: 'History', icon: 'i-lucide-history', event: 'viewLogs', variant: 'soft' },
+        { label: 'Activity Logs', icon: 'i-lucide-clipboard-list', event: 'viewLogs', variant: 'ghost' },
         { label: 'Add Loan Type', icon: 'i-lucide-plus', event: 'addLoanType', color: 'primary' }
     ]
 })
@@ -33,7 +33,6 @@ definePageMeta({
 const { loanTypes, addLoanType, updateLoanType, deleteLoanType, isPending: pending } = useLoanTypes()
 const events = useEvents()
 const overlay = useOverlay()
-const logger = useLogger('loan-types')
 
 // Modals
 const formModal = overlay.create(LoanTypeModal)

@@ -21,7 +21,7 @@ definePageMeta({
     title: 'Loan Applications',
     isTable: true,
     headerActions: [
-        { label: 'History', icon: 'i-lucide-history', event: 'viewLogs', variant: 'soft' },
+        { label: 'Activity Logs', icon: 'i-lucide-clipboard-list', event: 'viewLogs', variant: 'ghost' },
         { label: 'New Application', icon: 'i-lucide-plus', event: 'addApplication', color: 'primary' }
     ]
 })
@@ -32,7 +32,6 @@ definePageMeta({
 const { applications, addApplication, updateApplication, deleteApplication, isPending: pending } = useLoanApplications()
 const events = useEvents()
 const overlay = useOverlay()
-const logger = useLogger('loan-applications')
 
 // Modals
 const formModal = overlay.create(LoanApplicationModal)

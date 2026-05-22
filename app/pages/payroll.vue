@@ -16,7 +16,8 @@ definePageMeta({
     title: 'Payroll Deductions',
     isTable: true,
     headerActions: [
-        { label: 'History', icon: 'i-lucide-history', event: 'viewLogs', variant: 'soft' }
+        { label: 'Activity Logs', icon: 'i-lucide-clipboard-list', event: 'viewLogs', variant: 'ghost' },
+        { label: 'Run Payroll', icon: 'i-lucide-play-circle', event: 'runPayroll', color: 'primary' }
     ]
 })
 
@@ -44,7 +45,7 @@ watch(cycles, (newCycles) => {
     }
 })
 
-const isAuthorized = computed(() => ['Payroll', 'Admin'].includes(currentRole.value))
+const isAuthorized = computed(() => ['Payroll', 'Admin'].includes(currentRole.value ?? ''))
 
 // Filter deductions by selected cycle
 const filteredDeductions = computed(() => {
@@ -62,6 +63,8 @@ events.on('viewLogs', () => {
     isDrawerOpen.value = true
 })
 
+events.on('runPayroll', handleRunPayroll)
+
 // ============================================================================
 // Methods
 // ============================================================================
@@ -77,7 +80,7 @@ function getStatusColor(status: DeductionStatus) {
 }
 
 async function handleRunPayroll() {
-    if (!isAuthorized.value) return
+    if (!canRunPayroll.value || pending.value) return
     await batchProcessCycle(selectedCycle.value)
 }
 
@@ -173,15 +176,6 @@ const columnVisibility = ref({})
                 <TableGlobalFilter v-model="globalFilter" />
                 <TableColumnToggle :table="table" />
                 
-                <!-- Batch Action -->
-                <UButton 
-                    label="Run Payroll" 
-                    icon="i-lucide-play-circle" 
-                    color="primary" 
-                    :disabled="!canRunPayroll || pending"
-                    :loading="pending"
-                    @click="handleRunPayroll" 
-                />
             </div>
         </UPageCard>
 

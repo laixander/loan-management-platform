@@ -1,8 +1,22 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 definePageMeta({
-    layout: 'page'
+    layout: false,
+    title: 'Roadmap'
+})
+
+const isScrolled = ref(false)
+
+onMounted(() => {
+    const handleScroll = () => {
+        isScrolled.value = window.scrollY > 120
+    }
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    onUnmounted(() => {
+        window.removeEventListener('scroll', handleScroll)
+    })
 })
 
 // ============================================================================
@@ -252,31 +266,43 @@ function getTypeColor(type: string): 'primary' | 'secondary' | 'success' | 'warn
 <template>
     <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950">
 
-        <!-- ── Header ───────────────────────────────────────────────────── -->
+        <!-- ── Static Banner Header (Standard Flow) ─────────────────────── -->
         <div
-            class="relative overflow-hidden py-16 sm:py-20 border-b border-neutral-200/50 dark:border-neutral-800/50 bg-gradient-to-br from-primary-500/5 via-transparent to-emerald-500/5">
-            <div
-                class="absolute top-0 right-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl -z-10 animate-pulse" />
+            class="relative overflow-hidden py-16 sm:py-20 border-b border-neutral-200/50 dark:border-neutral-800/50 bg-gradient-to-br from-primary-500/5 via-transparent to-emerald-500/5 transition-all duration-500 ease-in-out"
+            :class="isScrolled ? 'opacity-0 -translate-y-8 pointer-events-none' : 'opacity-100 translate-y-0'"
+        >
+            <div class="absolute top-0 right-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl -z-10 animate-pulse" />
             <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl -z-10" />
 
             <UContainer>
                 <div class="max-w-3xl">
-                    <div
-                        class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary-500/10 text-primary-600 dark:text-primary-400 border border-primary-500/20 mb-4">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary-500/10 text-primary-600 dark:text-primary-400 border border-primary-500/20 mb-4">
                         <UIcon name="i-lucide-map" class="size-4" />
                         <span>Implementation Roadmap</span>
                     </div>
-                    <h1
-                        class="text-4xl sm:text-5xl font-bold tracking-tight text-neutral-900 dark:text-white mb-4">
+                    <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-neutral-900 dark:text-white mb-4">
                         Pages to <br />
-                        <span
-                            class="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-emerald-500">Build</span>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-emerald-500">Build</span>
                     </h1>
                     <p class="text-lg text-neutral-600 dark:text-neutral-300 leading-relaxed max-w-2xl">
                         A comprehensive list of all pages and modules derived from the DEVDOCS specification, organized
                         into 6 build phases by dependency chain and value delivery.
                     </p>
                 </div>
+            </UContainer>
+        </div>
+
+        <!-- ── Fixed Mini-Navbar (Slides in smoothly on scroll, zero layout shift) ── -->
+        <div
+            class="fixed top-0 left-0 right-0 z-40 border-b border-neutral-200/50 dark:border-neutral-800/50 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md shadow-sm transition-all duration-300 ease-in-out"
+            :class="isScrolled ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'"
+        >
+            <UContainer class="py-3 flex items-center justify-between">
+                <h1 class="text-lg font-bold text-neutral-900 dark:text-white leading-none">
+                    Pages to
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-emerald-500">Build</span>
+                </h1>
+                <UColorModeButton color="primary" class="cursor-pointer hover:scale-105 transition-transform" />
             </UContainer>
         </div>
 

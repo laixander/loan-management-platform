@@ -3,7 +3,8 @@
 // Page Configuration
 // ============================================================================
 definePageMeta({
-    title: 'Agent Kit'
+    layout: 'agent',
+    title: 'Input Events'
 })
 
 

@@ -3,7 +3,8 @@
 // Page Configuration
 // ============================================================================
 definePageMeta({
-    title: 'Agent Kit',
+    layout: 'agent',
+    title: 'AI System Rules',
     isTable: false
 })
 

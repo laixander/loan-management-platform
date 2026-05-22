@@ -12,7 +12,7 @@ export const usePayroll = () => {
     const isLoading = useState('payroll-loading', () => false)
     const isHydrated = ref(false)
     const toast = useAppToast()
-    const logger = useLogger('payroll')
+    const { logPayrollDeductionUpdated, logPayrollBatchProcessed } = useAppLogger()
 
     const { markSchedulePaid } = useSchedules()
     const { recordTransaction } = useRepayments()
@@ -57,7 +57,7 @@ export const usePayroll = () => {
         
         saveToStorage(updated)
         toast.success('Deduction Updated', `${deduction.employeeName} (${deduction.loanRef}) is now ${status}.`)
-        logger.addLog(`Updated deduction #${id} to ${status}`, 'payroll.update', 'info')
+        logPayrollDeductionUpdated(id, status)
         isLoading.value = false
     }
 
@@ -110,7 +110,7 @@ export const usePayroll = () => {
 
         saveToStorage(updated)
         toast.success('Payroll Run Complete', `Processed ${toProcess.length} deductions for cycle ${cycle}.`)
-        logger.addLog(`Batch processed cycle ${cycle} (${toProcess.length} records)`, 'payroll.batch', 'success')
+        logPayrollBatchProcessed(cycle, toProcess.length)
         
         isLoading.value = false
     }

@@ -5,7 +5,6 @@
 const { seedAll, resetAll } = useDemoSeeder()
 const { isLoading } = useUsers()
 const toast = useAppToast()
-const { currentRole, setRole, showAllPages, toggleShowAllPages } = useDemoAuth()
 
 // ============================================================================
 // Methods
@@ -47,37 +46,18 @@ const handleReset = async () => {
 // ============================================================================
 // Configuration
 // ============================================================================
-import type { SystemRole } from '~/composables/useDemoAuth'
-const roleOptions: SystemRole[] = ['Employee', 'Supervisor', 'HR', 'Finance', 'Payroll', 'Admin']
-
 const items = computed(() => [
-    // Settings group
-    [
-        {
-            label: 'Show All Pages',
-            icon: showAllPages.value ? 'i-lucide-check-square' : 'i-lucide-square',
-            class: showAllPages.value ? 'text-primary' : '',
-            onSelect: toggleShowAllPages
-        }
-    ],
-    // Role Switcher group
-    roleOptions.map(role => ({
-        label: `Simulate ${role}`,
-        icon: currentRole.value === role ? 'i-lucide-check-circle-2' : 'i-lucide-circle',
-        class: currentRole.value === role ? 'text-primary' : '',
-        onSelect: () => setRole(role)
-    })),
     // Navigation group
     [
         {
             label: 'Landing Page',
             icon: 'i-lucide-home',
-            to: '/'
+            to: '/docs/sample'
         },
         {
             label: 'Documentation',
             icon: 'i-lucide-book-open',
-            to: '/documentation'
+            to: '/docs/documentation'
         },
         {
             label: 'User Manual',
@@ -87,8 +67,18 @@ const items = computed(() => [
         {
             label: 'Roadmap',
             icon: 'i-lucide-map',
-            to: '/roadmap'
+            to: '/docs/roadmap'
         },
+        {
+            label: 'Changelog',
+            icon: 'i-lucide-file-text',
+            to: '/docs/changelogs'
+        },
+        {
+            label: 'Agent Kit',
+            icon: 'i-lucide-wand',
+            to: '/agent/ai-rules'
+        }
     ],
     // Seed group
     [

@@ -12,7 +12,7 @@ export const useSchedules = () => {
     const isLoading = useState('schedules-loading', () => false)
     const isHydrated = ref(false)
     const toast = useAppToast()
-    const logger = useLogger('schedules')
+    const { logSchedulePaid } = useAppLogger()
 
     const isPending = computed(() => !isHydrated.value || isLoading.value)
 
@@ -47,7 +47,7 @@ export const useSchedules = () => {
                 paidDate: new Date().toISOString()
             }
             saveToStorage(updated)
-            logger.addLog(`Marked schedule #${id} as Paid`, 'schedule.paid', 'success')
+            logSchedulePaid(id)
         }
         isLoading.value = false
     }

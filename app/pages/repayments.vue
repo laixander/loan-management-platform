@@ -20,7 +20,7 @@ definePageMeta({
     title: 'Repayment Tracker',
     isTable: true,
     headerActions: [
-        { label: 'History', icon: 'i-lucide-history', event: 'viewLogs', variant: 'soft' },
+        { label: 'Activity Logs', icon: 'i-lucide-clipboard-list', event: 'viewLogs', variant: 'ghost' },
         { label: 'Record Transaction', icon: 'i-lucide-plus', event: 'addTransaction', color: 'primary' }
     ]
 })
@@ -32,7 +32,6 @@ const { transactions, recordTransaction, isPending: pending } = useRepayments()
 const { applications } = useLoanApplications()
 const events = useEvents()
 const overlay = useOverlay()
-const logger = useLogger('repayments')
 
 // Modals
 const formModal = overlay.create(RepaymentModal)

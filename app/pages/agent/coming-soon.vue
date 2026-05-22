@@ -1,6 +1,7 @@
 <script setup lang="ts">
 definePageMeta({
-    title: 'Agent Kit'
+    layout: 'agent',
+    title: 'Coming Soon'
 })
 
 const toast = useToast()

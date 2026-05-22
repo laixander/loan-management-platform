@@ -15,7 +15,7 @@ export const useLoanApplications = () => {
     const isLoading = useState('loan-applications-loading', () => false)
     const isHydrated = ref(false)
     const toast = useAppToast()
-    const logger = useLogger('loan-applications')
+    const { logApplicationCreated, logApplicationStatusChanged, logApplicationUpdated, logApplicationDeleted, logApplicationCleared } = useAppLogger()
 
     const isPending = computed(() => !isHydrated.value || isLoading.value)
 
@@ -80,7 +80,7 @@ export const useLoanApplications = () => {
 
         saveToStorage([newRecord, ...applications.value])
         toast.success('Application Submitted', `Loan reference ${loanRef} has been created.`)
-        logger.addLog(`Created application ${loanRef} for ${form.employeeName}`, 'application.created', 'success')
+        logApplicationCreated(loanRef, form.employeeName)
         return newRecord
     }
 
@@ -97,9 +97,9 @@ export const useLoanApplications = () => {
                 if (form.status === 'Approved') updated.approvalDate = now
                 if (form.status === 'Disbursed') updated.disbursementDate = now
                 if (form.status === 'Completed') updated.completionDate = now
-                logger.addLog(`Application ${current.loanRef} status changed to ${form.status}`, 'application.status_changed', 'info')
+                logApplicationStatusChanged(current.loanRef, form.status)
             } else {
-                logger.addLog(`Updated application: ${current.loanRef}`, 'application.updated', 'info')
+                logApplicationUpdated(current.loanRef)
             }
 
             const updatedList = [...applications.value]
@@ -115,7 +115,7 @@ export const useLoanApplications = () => {
         if (target) {
             saveToStorage(applications.value.filter(a => a.id !== id))
             toast.success('Application Deleted', `Loan application ${target.loanRef} has been removed.`)
-            logger.addLog(`Deleted application: ${target.loanRef}`, 'application.deleted', 'warn')
+            logApplicationDeleted(target.loanRef)
         }
     }
 
@@ -130,7 +130,7 @@ export const useLoanApplications = () => {
         }
         if (!quiet) {
             toast.success('Applications Cleared', 'All loan applications have been removed.')
-            logger.addLog('Cleared all loan applications', 'application.cleared', 'warn')
+            logApplicationCleared()
         }
     }
 

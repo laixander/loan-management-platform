@@ -28,79 +28,36 @@ const open = ref(true)
 const route = useRoute()
 const events = useEvents()
 
-const { currentRole } = useDemoAuth()
+// Static navigation — Agent Kit reference pages only
+const items: NavigationMenuItem[] = [
 
-// Sidebar navigation items mapping
-const items = computed<NavigationMenuItem[]>(() => {
-    const role = currentRole.value
-    const isAdmin = role === 'Admin'
-
-    const canSee = (allowedRoles: string[]) => isAdmin || (role !== null && allowedRoles.includes(role))
-
-    const allItems: any[] = [
-        ...(canSee(['Supervisor', 'HR', 'Finance', 'Payroll']) ? [{
-            label: 'Dashboard',
-            icon: 'i-lucide-chart-line',
-            to: '/dashboard'
-        }] : []),
-        ...(canSee(['Supervisor', 'HR', 'Finance', 'Payroll']) ? [{
-            label: 'Loan Operations',
-            icon: 'i-lucide-landmark',
-            defaultOpen: true,
-            type: 'trigger',
-            children: [
-                ...(canSee(['HR']) ? [{
-                    label: 'Loan Types',
-                    icon: 'i-lucide-file-cog',
-                    to: '/loan-types'
-                }] : []),
-                ...(canSee(['Supervisor', 'HR', 'Finance']) ? [{
-                    label: 'Loan Applications',
-                    icon: 'i-lucide-file-text',
-                    to: '/loan-applications'
-                }] : []),
-                ...(canSee(['Finance']) ? [{
-                    label: 'Repayment Tracker',
-                    icon: 'i-lucide-receipt',
-                    to: '/repayments'
-                }] : []),
-                ...(canSee(['Payroll']) ? [{
-                    label: 'Payroll Deductions',
-                    icon: 'i-lucide-wallet',
-                    to: '/payroll'
-                }] : [])
-            ]
-        }] : []),
-        ...(canSee(['Supervisor', 'HR', 'Finance', 'Payroll']) ? [{
-            label: 'Workflow & Approvals',
-            icon: 'i-lucide-check-square',
-            defaultOpen: true,
-            type: 'trigger',
-            children: [
-                {
-                    label: 'Approval Queue',
-                    icon: 'i-lucide-list-todo',
-                    to: '/approvals'
-                }
-            ]
-        }] : []),
-        ...(canSee(['Employee']) ? [{
-            label: 'Employee Self-Service',
-            icon: 'i-lucide-user',
-            defaultOpen: true,
-            children: [
-                {
-                    label: 'My Loans',
-                    icon: 'i-lucide-wallet-cards',
-                    to: '/my-loans'
-                }
-            ]
-        }] : [])
-    ]
-
-    // Clean up empty triggers
-    return allItems.filter(item => !item.children || item.children.length > 0)
-})
+            {
+                label: 'AI System Rules',
+                icon: 'i-lucide-scroll-text',
+                to: '/agent/ai-rules'
+            },
+            {
+                label: 'Dashboard',
+                icon: 'i-lucide-chart-line',
+                to: '/agent/dashboard'
+            },
+            {
+                label: 'Table & CRUD',
+                icon: 'i-lucide-layers',
+                to: '/agent/table'
+            },
+            {
+                label: 'Input Events',
+                icon: 'i-lucide-file-edit',
+                to: '/agent/inputs'
+            },
+            {
+                label: 'Coming Soon',
+                icon: 'i-lucide-construction',
+                badge: 'Soon',
+                to: '/agent/coming-soon'
+            }
+        ]
 
 // ============================================================================
 // Computed Properties
@@ -148,10 +105,10 @@ const headerActions = computed(() => {
         }">
             <template #header>
                 <div class="flex items-end gap-2.5">
-                    <UIcon name="i-lucide-hand-coins" class="size-8 shrink-0 text-primary" />
+                    <UIcon name="i-ph-car-duotone" class="size-8 shrink-0 text-primary" />
                     <span v-if="!isCollapsed"
-                        class="font-black text-neutral-900 dark:text-white tracking-tight">Loan<span
-                            class="text-primary">Management</span></span>
+                        class="font-black text-neutral-900 dark:text-white tracking-tight">Park<span
+                            class="text-primary">Spot</span></span>
                 </div>
             </template>
 
@@ -164,7 +121,8 @@ const headerActions = computed(() => {
                 :ui="{
                     root: 'gap-2.5',
                     label: 'text-default uppercase tracking-widest py-2.5',
-                    link: 'p-2.5',
+                    link: isCollapsed ? 'flex-col gap-1' : 'p-2.5',
+                    linkLabel: isCollapsed ? 'block text-[10px]/3 text-center' : undefined,
                     list: 'space-y-0.5'
                 }" />
             <template #footer>

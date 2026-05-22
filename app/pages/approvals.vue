@@ -20,7 +20,7 @@ definePageMeta({
     title: 'Approval Queue',
     isTable: true,
     headerActions: [
-        { label: 'History', icon: 'i-lucide-history', event: 'viewLogs', variant: 'soft' }
+        { label: 'Activity Logs', icon: 'i-lucide-clipboard-list', event: 'viewLogs', variant: 'ghost' },
     ]
 })
 

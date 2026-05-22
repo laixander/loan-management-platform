@@ -18,7 +18,8 @@ import ConfirmationModal from '~/components/ConfirmationModal.vue'
 // Page Configuration
 // ============================================================================
 definePageMeta({
-    title: 'Agent Kit',
+    layout: 'agent',
+    title: 'Table & CRUD',
     isTable: true,
     headerActions: [
         { label: 'History', icon: 'i-lucide-history', event: 'viewLogs', variant: 'soft' },
@@ -33,7 +34,7 @@ definePageMeta({
 const { users, addUser, updateUser, deleteUser, isPending: pending } = useUsers()
 const events = useEvents()
 const overlay = useOverlay()
-const logger = useLogger('users')
+const { logUserAdded, logUserUpdated, logUserDeleted, logUserToggleStatus } = useAppLogger()
 
 // Modals
 const userModal = overlay.create(UserModal)
@@ -64,7 +65,7 @@ events.on('viewLogs', () => {
  */
 async function handleAddUser(userForm: Omit<User, 'id'>) {
     await addUser(userForm)
-    logger.addLog(`Added user: ${userForm.name}`, `Created`, 'success')
+    logUserAdded(userForm.name)
     isAddUserOpen.value = false
 }
 
@@ -84,7 +85,7 @@ function handleEditUser(user: User) {
                 confirmColor: 'warning',
                 onConfirm: () => {
                     updateUser(user.id, userForm)
-                    logger.addLog(`Updated user: ${userForm.name}`, `Updated`, 'warn')
+                    logUserUpdated(userForm.name)
                 }
             })
         }
@@ -103,7 +104,7 @@ function handleDeleteUser(user: User) {
         confirmColor: 'error',
         onConfirm: () => {
             deleteUser(user.id)
-            logger.addLog(`Deleted user: ${user.name}`, `Deleted`, 'error')
+            logUserDeleted(user.name)
         }
     })
 }
@@ -123,7 +124,7 @@ function handleToggleStatus(user: User) {
         confirmColor: isActivating ? 'success' : 'warning',
         onConfirm: () => {
             updateUser(user.id, { status: newStatus })
-            logger.addLog(`${isActivating ? 'Activated' : 'Deactivated'} user: ${user.name}`, `${isActivating ? 'Activated' : 'Deactivated'}`, 'info')
+            logUserToggleStatus(user.name, isActivating)
         }
     })
 }

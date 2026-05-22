@@ -15,7 +15,7 @@ export const useApprovals = () => {
     const isLoading = useState('approvals-loading', () => false)
     const isHydrated = ref(false)
     const toast = useAppToast()
-    const logger = useLogger('approvals')
+    const { logApprovalProcessed, logApprovalCleared } = useAppLogger()
 
     const isPending = computed(() => !isHydrated.value || isLoading.value)
 
@@ -75,7 +75,7 @@ export const useApprovals = () => {
         saveToStorage(updatedList)
 
         toast.success('Step Processed', `Marked as ${outcome} for ${currentStep.loanRef}`)
-        logger.addLog(`Processed step ${currentStep.stepOrder} (${currentStep.role}) as ${outcome} for ${currentStep.loanRef}`, 'approval.processed', outcome === 'Approved' ? 'success' : 'warn')
+        logApprovalProcessed(currentStep.stepOrder, currentStep.role, outcome, currentStep.loanRef)
 
         // Workflow Automation: Update the parent loan application status
         const app = applications.value.find(a => a.id === currentStep.loanApplicationId)
@@ -106,7 +106,7 @@ export const useApprovals = () => {
         }
         if (!quiet) {
             toast.success('Approvals Cleared', 'All workflows reset.')
-            logger.addLog('Cleared approvals', 'approval.cleared', 'warn')
+            logApprovalCleared()
         }
     }
 

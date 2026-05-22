@@ -16,7 +16,7 @@ export const useLoanTypes = () => {
     const isLoading = useState('loan-types-loading', () => false)
     const isHydrated = ref(false)
     const toast = useAppToast()
-    const logger = useLogger('loan-types')
+    const { logLoanTypeCreated, logLoanTypeUpdated, logLoanTypeDeleted, logLoanTypeCleared } = useAppLogger()
 
     const isPending = computed(() => !isHydrated.value || isLoading.value)
 
@@ -83,7 +83,7 @@ export const useLoanTypes = () => {
 
         saveToStorage([newRecord, ...loanTypes.value])
         toast.success('Loan Type added', `The loan type "${newRecord.name}" has been created.`)
-        logger.addLog(`Created loan type: ${newRecord.name}`, 'loan_type.created', 'success')
+        logLoanTypeCreated(newRecord.name)
         return newRecord
     }
 
@@ -102,7 +102,7 @@ export const useLoanTypes = () => {
             } as LoanType
             saveToStorage(updatedList)
             toast.success('Loan Type updated', `The configuration for "${updatedList[index].name}" has been updated.`)
-            logger.addLog(`Updated loan type: ${updatedList[index].name}`, 'loan_type.updated', 'info')
+            logLoanTypeUpdated(updatedList[index].name)
         }
     }
 
@@ -115,7 +115,7 @@ export const useLoanTypes = () => {
         if (target) {
             saveToStorage(loanTypes.value.filter(l => l.id !== id))
             toast.success('Loan Type deleted', `The loan type "${target.name}" has been removed.`)
-            logger.addLog(`Deleted loan type: ${target.name}`, 'loan_type.deleted', 'warn')
+            logLoanTypeDeleted(target.name)
         }
     }
 
@@ -136,7 +136,7 @@ export const useLoanTypes = () => {
         }
         if (!quiet) {
             toast.success('Loan Types cleared', 'All loan type configurations have been removed.')
-            logger.addLog('Cleared all loan types', 'loan_type.cleared', 'warn')
+            logLoanTypeCleared()
         }
     }
 

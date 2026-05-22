@@ -10,24 +10,18 @@ export type SystemRole = ApprovalRole | 'Employee'
 const STORAGE_KEY = 'demo-auth-role'
 
 export const useDemoAuth = () => {
-    // We default to 'Admin' which has full access to view everything.
-    const currentRole = useState<SystemRole>('demo-auth-role', () => 'Admin')
-    const showAllPages = useState<boolean>('demo-auth-show-all', () => false)
+    // Default to null — user must select a role on the login page
+    const currentRole = useState<SystemRole | null>('demo-auth-role', () => null)
     const isHydrated = ref(false)
     const toast = useAppToast()
 
     const load = () => {
         if (import.meta.server) return
-        const storedRole = localStorage.getItem(STORAGE_KEY) as SystemRole
+        const storedRole = localStorage.getItem(STORAGE_KEY) as SystemRole | null
         if (storedRole) {
             currentRole.value = storedRole
         }
-        
-        const storedShowAll = localStorage.getItem('demo-auth-show-all')
-        if (storedShowAll !== null) {
-            showAllPages.value = storedShowAll === 'true'
-        }
-        
+
         isHydrated.value = true
     }
 
@@ -40,13 +34,12 @@ export const useDemoAuth = () => {
         if (import.meta.client) {
             localStorage.setItem(STORAGE_KEY, role)
         }
-        toast.success('Role Switched', `You are now interacting as ${role}.`)
     }
 
-    const toggleShowAllPages = () => {
-        showAllPages.value = !showAllPages.value
+    const logout = () => {
+        currentRole.value = null
         if (import.meta.client) {
-            localStorage.setItem('demo-auth-show-all', String(showAllPages.value))
+            localStorage.removeItem(STORAGE_KEY)
         }
     }
 
@@ -55,12 +48,14 @@ export const useDemoAuth = () => {
         return currentRole.value === 'Employee' ? 1 : null
     })
 
+    const isLoggedIn = computed(() => currentRole.value !== null)
+
     return {
         currentRole,
         currentEmployeeId,
-        showAllPages,
         isHydrated,
+        isLoggedIn,
         setRole,
-        toggleShowAllPages
+        logout
     }
 }
