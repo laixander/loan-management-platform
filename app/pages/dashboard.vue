@@ -9,6 +9,7 @@ import { Line, Bar, Doughnut } from 'vue-chartjs'
 // ============================================================================
 definePageMeta({
     title: 'Dashboard',
+    description: 'Key metrics and loan analytics overview.',
 })
 
 // ============================================================================
@@ -133,11 +134,11 @@ function getStatusColor(status: string): string {
 </script>
 
 <template>
-    <UPageCard title="Dashboard" description="Key metrics and loan analytics overview." variant="naked"
-        orientation="horizontal" class="rounded-none" />
+    <!-- <UPageCard title="Dashboard" description="Key metrics and loan analytics overview." variant="naked"
+        orientation="horizontal" class="rounded-none" /> -->
 
     <!-- ── Stat Cards ──────────────────────────────────────────── -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mt-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <StatCard title="Active Loans" :value="stats.totalActiveLoans" icon="i-lucide-file-check"
             :trend="hasData ? '3 new this week' : undefined" trendDirection="up" />
         <StatCard title="Pending Approvals" :value="stats.pendingApprovals" icon="i-lucide-clock"

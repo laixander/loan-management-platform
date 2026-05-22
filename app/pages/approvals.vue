@@ -18,6 +18,7 @@ import ApprovalModal from '~/components/ApprovalModal.vue'
 // ============================================================================
 definePageMeta({
     title: 'Approval Queue',
+    description: 'Review and process loan applications assigned to your role.',
     isTable: true,
     headerActions: [
         { label: 'Activity Logs', icon: 'i-lucide-clipboard-list', event: 'viewLogs', variant: 'ghost' },
@@ -145,14 +146,19 @@ const columnVisibility = ref({})
 </script>
 
 <template>
-    <UPageCard title="Approval Queue"
+    <!-- <UPageCard title="Approval Queue"
         description="Review and process loan applications assigned to your role."
         variant="naked" orientation="horizontal" class="border-b border-default rounded-none p-4 sm:p-6">
         <div class="flex justify-end gap-2 flex-1 items-center">
             <TableGlobalFilter v-model="globalFilter" />
             <TableColumnToggle :table="table" />
         </div>
-    </UPageCard>
+    </UPageCard> -->
+
+    <UDashboardToolbar :ui="{ root: 'min-h-(--ui-header-height)' }">
+        <TableGlobalFilter v-model="globalFilter" />
+        <TableColumnToggle :table="table" />
+    </UDashboardToolbar>
 
     <UTable sticky ref="table" :data="filteredQueue" :columns="columns" :loading="pending"
         v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">

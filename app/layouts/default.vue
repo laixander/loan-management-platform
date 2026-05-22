@@ -117,6 +117,11 @@ const isCollapsed = computed(() => collapsible.value === 'icon' && !open.value)
 const pageTitle = computed(() => route.meta.title as string)
 
 /**
+ * Extracts the page description dynamically from the current route's meta tags
+ */
+const pageDescription = computed(() => route.meta.description as string)
+
+/**
  * Parses and normalizes the header actions defined in the route meta
  */
 const headerActions = computed(() => {
@@ -175,14 +180,18 @@ const headerActions = computed(() => {
 
         <div
             class="flex-1 flex flex-col overflow-hidden lg:peer-data-[variant=floating]:my-4 peer-data-[variant=inset]:m-4 lg:peer-data-[variant=inset]:not-peer-data-[collapsible=offcanvas]:ms-0 peer-data-[variant=inset]:rounded-xl peer-data-[variant=inset]:shadow-sm peer-data-[variant=inset]:ring peer-data-[variant=inset]:ring-default bg-default">
-            <div class="h-(--ui-header-height) shrink-0 flex items-center px-4" :class="[
+            <div class="h-(--ui-header-height) shrink-0 flex items-center gap-1 px-4 sm:px-6" :class="[
                 variant !== 'floating' && 'border-b border-default',
                 side === 'right' && 'justify-end'
             ]">
                 <UButton :icon="side === 'left' ? 'i-lucide-panel-left' : 'i-lucide-panel-right'" color="neutral"
                     variant="ghost" aria-label="Toggle sidebar" @click="open = !open" />
                 <!-- setup title in page, not here -->
-                <h1 class="font-bold">{{ pageTitle }}</h1>
+                <div class="flex items-center gap-2 font-bold">{{ pageTitle }} <UTooltip arrow :text="pageDescription" :content="{
+                    align: 'center',
+                    side: 'right',
+                    sideOffset: 8
+                }"><UIcon name="i-lucide-info" class="text-dimmed" /></UTooltip></div>
                 <div class="ml-auto flex items-center gap-2">
                     <UButton v-for="(action, index) in headerActions" :key="index" :label="action.label"
                         :icon="action.icon" :color="(action.color as any) || 'neutral'"

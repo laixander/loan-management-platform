@@ -94,7 +94,7 @@ function getBadgeColor(type: string) {
 <template>
     <!-- ── Static Banner Header (Standard Flow) ─────────────────────── -->
     <div 
-        class="relative border-b border-default py-8 overflow-hidden min-h-[33vh] flex flex-col justify-center bg-primary-50/10 dark:bg-primary-950/5 transition-all duration-500 ease-in-out"
+        class="relative border-b border-default py-8 overflow-hidden min-h-[33vh] flex flex-col justify-center transition-all duration-500 ease-in-out"
         :class="isScrolled ? 'opacity-0 -translate-y-8 pointer-events-none' : 'opacity-100 translate-y-0'"
     >
         <UContainer class="relative">
@@ -111,7 +111,7 @@ function getBadgeColor(type: string) {
                 </p>
             </div>
         </UContainer>
-        <BackgroundGrid bg-color="bg-primary-50 dark:bg-primary-950" />
+        <BackgroundGrid bg-color="bg-primary-50 dark:bg-primary-950/50" />
     </div>
 
     <!-- ── Fixed Mini-Navbar (Slides in smoothly on scroll, zero layout shift) ── -->

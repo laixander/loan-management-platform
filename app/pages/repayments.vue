@@ -18,6 +18,7 @@ import RepaymentModal from '~/components/RepaymentModal.vue'
 // ============================================================================
 definePageMeta({
     title: 'Repayment Tracker',
+    description: 'Monitor all financial transactions across active loan applications. This is an append-only ledger for data integrity.',
     isTable: true,
     headerActions: [
         { label: 'Activity Logs', icon: 'i-lucide-clipboard-list', event: 'viewLogs', variant: 'ghost' },
@@ -141,14 +142,19 @@ const columnVisibility = ref({})
 </script>
 
 <template>
-    <UPageCard title="Repayment Tracker (Ledger)"
+    <!-- <UPageCard title="Repayment Tracker (Ledger)"
         description="Monitor all financial transactions across active loan applications. This is an append-only ledger for data integrity."
         variant="naked" orientation="horizontal" class="border-b border-default rounded-none p-4 sm:p-6">
         <div class="flex justify-end gap-2 flex-1">
             <TableGlobalFilter v-model="globalFilter" />
             <TableColumnToggle :table="table" />
         </div>
-    </UPageCard>
+    </UPageCard> -->
+
+    <UDashboardToolbar :ui="{ root: 'min-h-(--ui-header-height)' }">
+        <TableGlobalFilter v-model="globalFilter" />
+        <TableColumnToggle :table="table" />
+    </UDashboardToolbar>
 
     <UTable sticky ref="table" :data="transactions" :columns="columns" :loading="pending"
         v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">

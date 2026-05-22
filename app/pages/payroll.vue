@@ -14,6 +14,7 @@ import type { PayrollDeduction, DeductionStatus } from '~/types'
 // ============================================================================
 definePageMeta({
     title: 'Payroll Deductions',
+    description: 'Manage automated loan deductions synced with the payroll system.',
     isTable: true,
     headerActions: [
         { label: 'Activity Logs', icon: 'i-lucide-clipboard-list', event: 'viewLogs', variant: 'ghost' },
@@ -162,8 +163,8 @@ const columnVisibility = ref({})
         <h2 class="text-2xl font-bold">Payroll / Admin Access Required</h2>
     </div>
 
-    <div v-else class="flex flex-col flex-1 h-full w-full">
-        <UPageCard title="Payroll Deductions"
+    <template v-else>
+        <!-- <UPageCard title="Payroll Deductions"
             description="Manage automated loan deductions synced with the payroll system."
             variant="naked" orientation="horizontal" class="border-b border-default rounded-none p-4 sm:p-6">
             
@@ -177,7 +178,18 @@ const columnVisibility = ref({})
                 <TableColumnToggle :table="table" />
                 
             </div>
-        </UPageCard>
+        </UPageCard> -->
+
+        <UDashboardToolbar :ui="{ root: 'min-h-(--ui-header-height)' }">
+            <TableGlobalFilter v-model="globalFilter" />
+            <div class="flex items-center">
+                <div class="flex items-center gap-2 mr-2">
+                    <span class="text-sm font-medium text-muted">Cycle:</span>
+                    <USelect v-model="selectedCycle" :items="cycles" class="w-32" />
+                </div>
+                <TableColumnToggle :table="table" />
+            </div>
+        </UDashboardToolbar>
 
         <UTable sticky ref="table" :data="filteredDeductions" :columns="columns" :loading="pending"
             v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">
@@ -191,5 +203,5 @@ const columnVisibility = ref({})
         </UTable>
 
         <LogsDrawer v-model:open="isDrawerOpen" namespace="payroll" />
-    </div>
+    </template>
 </template>
