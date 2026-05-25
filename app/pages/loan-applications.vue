@@ -19,10 +19,9 @@ import ConfirmationModal from '~/components/ConfirmationModal.vue'
 // ============================================================================
 definePageMeta({
     title: 'Loan Applications',
-    description: 'View and process all loan requests from employees across the organization.',
     isTable: true,
     headerActions: [
-        { label: 'Activity Logs', icon: 'i-lucide-clipboard-list', event: 'viewLogs', variant: 'ghost' },
+        { label: 'Activity Logs', icon: 'i-lucide-scroll-text', event: 'viewLogs', variant: 'ghost' },
         { label: 'New Application', icon: 'i-lucide-plus', event: 'addApplication', color: 'primary' }
     ]
 })
@@ -30,7 +29,8 @@ definePageMeta({
 // ============================================================================
 // Composables & State
 // ============================================================================
-const { applications, addApplication, updateApplication, deleteApplication, isPending: pending } = useLoanApplications()
+const loanStore = useLoanStore()
+const authStore = useAuthStore()
 const events = useEvents()
 const overlay = useOverlay()
 
@@ -41,6 +41,9 @@ const confirmModal = overlay.create(ConfirmationModal)
 // Local State
 const isAddModalOpen = ref(false)
 const isDrawerOpen = ref(false)
+const pending = ref(false)
+
+const isAuthorized = computed(() => ['Supervisor', 'HR', 'Finance', 'Admin'].includes(authStore.currentRole ?? ''))
 
 // ============================================================================
 // Event Listeners
@@ -56,8 +59,10 @@ events.on('viewLogs', () => {
 // Methods
 // ============================================================================
 
-function handleAddApplication(form: any) {
-    addApplication(form)
+async function handleAddApplication(form: any) {
+    pending.value = true
+    await LoanService.applyForLoan(form)
+    pending.value = false
 }
 
 function handleEditApplication(application: LoanApplication) {
@@ -70,24 +75,30 @@ function handleEditApplication(application: LoanApplication) {
                 description: `Are you sure you want to save changes to ${application.loanRef}?`,
                 confirmLabel: 'Save Changes',
                 confirmColor: 'warning',
-                onConfirm: () => {
-                    updateApplication(application.id, form)
+                onConfirm: async () => {
+                    pending.value = true
+                    await LoanService.updateApplication(application.id, form)
+                    pending.value = false
                 }
             })
         }
     })
 }
 
-function handleDeleteApplication(application: LoanApplication) {
-    confirmModal.open({
-        title: 'Delete Application',
-        description: `Are you sure you want to delete ${application.loanRef}? This action cannot be undone.`,
-        confirmLabel: 'Delete',
-        confirmColor: 'error',
-        onConfirm: () => {
-            deleteApplication(application.id)
-        }
-    })
+async function handleDelete(app: LoanApplication) {
+    try {
+        await confirmModal.open({
+            title: 'Delete Application',
+            description: `Are you sure you want to delete ${app.loanRef}? This action cannot be undone.`,
+            confirmLabel: 'Delete Application',
+            confirmColor: 'error'
+        })
+        pending.value = true
+        await LoanService.deleteApplication(app.id)
+        pending.value = false
+    } catch {
+        // User cancelled
+    }
 }
 
 function handleStatusChange(application: LoanApplication, newStatus: string) {
@@ -96,8 +107,10 @@ function handleStatusChange(application: LoanApplication, newStatus: string) {
         description: `Are you sure you want to change the status of ${application.loanRef} to ${newStatus}?`,
         confirmLabel: 'Confirm',
         confirmColor: newStatus === 'Rejected' ? 'error' : 'primary',
-        onConfirm: () => {
-            updateApplication(application.id, { status: newStatus as any })
+        onConfirm: async () => {
+            pending.value = true
+            await LoanService.updateApplication(application.id, { status: newStatus as any })
+            pending.value = false
         }
     })
 }
@@ -221,7 +234,7 @@ const columns: TableColumn<LoanApplication>[] = [
                         label: 'Delete',
                         icon: 'i-lucide-trash',
                         color: 'error',
-                        onSelect: () => handleDeleteApplication(row.original)
+                        onSelect: () => handleDelete(row.original)
                     }
                 ]
             ]
@@ -248,21 +261,22 @@ const columnVisibility = ref({})
 </script>
 
 <template>
-    <!-- <UPageCard title="Loan Applications"
+    <div v-if="!isAuthorized" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
+        <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
+        <h2 class="text-2xl font-bold">Loan Officer / Admin Access Required</h2>
+    </div>
+
+    <template v-else>
+        <UPageCard title="Loan Applications"
         description="View and process all loan requests from employees across the organization."
         variant="naked" orientation="horizontal" class="border-b border-default rounded-none p-4 sm:p-6">
         <div class="flex justify-end gap-2 flex-1">
             <TableGlobalFilter v-model="globalFilter" />
             <TableColumnToggle :table="table" />
         </div>
-    </UPageCard> -->
+    </UPageCard>
 
-    <UDashboardToolbar :ui="{ root: 'min-h-(--ui-header-height)' }">
-        <TableGlobalFilter v-model="globalFilter" />
-        <TableColumnToggle :table="table" />
-    </UDashboardToolbar>
-
-    <UTable sticky ref="table" :data="applications" :columns="columns" :loading="pending"
+    <UTable sticky ref="table" :data="loanStore.applications" :columns="columns" :loading="pending"
         v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">
         <template #empty>
             <Empty :loading="pending" title="No Applications"
@@ -277,7 +291,8 @@ const columnVisibility = ref({})
         </template>
     </UTable>
 
-    <LoanApplicationModal v-model:open="isAddModalOpen" @submit="handleAddApplication" />
+        <LoanApplicationModal v-model:open="isAddModalOpen" @submit="handleAddApplication" />
 
-    <LogsDrawer v-model:open="isDrawerOpen" namespace="loan-applications" />
+        <LogsDrawer v-model:open="isDrawerOpen" namespace="loan-applications" />
+    </template>
 </template>

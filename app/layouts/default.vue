@@ -28,14 +28,14 @@ const open = ref(true)
 const route = useRoute()
 const events = useEvents()
 
-const { currentRole } = useDemoAuth()
+const authStore = useAuthStore()
 
 // Sidebar navigation items mapping
 const items = computed<NavigationMenuItem[]>(() => {
-    const role = currentRole.value
+    const role = authStore.currentRole
     const isAdmin = role === 'Admin'
 
-    const canSee = (allowedRoles: string[]) => isAdmin || (role !== null && allowedRoles.includes(role))
+    const canSee = (allowedRoles: string[]) => authStore.showAllPages || isAdmin || (role !== null && allowedRoles.includes(role))
 
     const allItems: any[] = [
         ...(canSee(['Supervisor', 'HR', 'Finance', 'Payroll']) ? [{
@@ -117,11 +117,6 @@ const isCollapsed = computed(() => collapsible.value === 'icon' && !open.value)
 const pageTitle = computed(() => route.meta.title as string)
 
 /**
- * Extracts the page description dynamically from the current route's meta tags
- */
-const pageDescription = computed(() => route.meta.description as string)
-
-/**
  * Parses and normalizes the header actions defined in the route meta
  */
 const headerActions = computed(() => {
@@ -187,11 +182,7 @@ const headerActions = computed(() => {
                 <UButton :icon="side === 'left' ? 'i-lucide-panel-left' : 'i-lucide-panel-right'" color="neutral"
                     variant="ghost" aria-label="Toggle sidebar" @click="open = !open" />
                 <!-- setup title in page, not here -->
-                <div class="flex items-center gap-2 font-bold">{{ pageTitle }} <UTooltip arrow :text="pageDescription" :content="{
-                    align: 'center',
-                    side: 'right',
-                    sideOffset: 8
-                }"><UIcon name="i-lucide-info" class="text-dimmed" /></UTooltip></div>
+                <div class="flex items-center gap-2 font-bold">{{ pageTitle }}</div>
                 <div class="ml-auto flex items-center gap-2">
                     <UButton v-for="(action, index) in headerActions" :key="index" :label="action.label"
                         :icon="action.icon" :color="(action.color as any) || 'neutral'"

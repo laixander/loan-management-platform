@@ -3,6 +3,9 @@
 // Imports
 // ============================================================================
 import { UBadge, UButton } from '#components'
+import { ref, computed } from 'vue'
+import LoanApplicationModal from '~/components/LoanApplicationModal.vue'
+import { LoanService } from '~/services/loan.service'
 
 // ============================================================================
 // Page Configuration
@@ -15,10 +18,20 @@ definePageMeta({
 // ============================================================================
 // State
 // ============================================================================
-const { currentRole, currentEmployeeId } = useDemoAuth()
+const authStore = useAuthStore()
 const { myApplications, isPending } = useMyLoans()
 
-const isEmployeeMode = computed(() => currentRole.value === 'Employee' && currentEmployeeId.value !== null)
+const isEmployeeMode = computed(() => authStore.currentRole === 'Employee' && authStore.currentEmployeeId !== null)
+const isModalOpen = ref(false)
+const pendingSubmit = ref(false)
+
+async function handleApply(form: any) {
+    pendingSubmit.value = true
+    // Automatically set employee ID if they are logged in as employee
+    form.employeeId = authStore.currentEmployeeId
+    await LoanService.applyForLoan(form)
+    pendingSubmit.value = false
+}
 
 function getStatusColor(status: string) {
     switch (status) {
@@ -36,20 +49,22 @@ function getStatusColor(status: string) {
 <template>
     <div class="p-6 max-w-6xl mx-auto w-full h-full">
         <!-- Auth Gate -->
-        <div v-if="!isEmployeeMode" class="flex flex-col items-center justify-center h-full gap-4 text-center">
+        <div v-if="!isEmployeeMode" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
             <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Employee Access Required</h2>
             <p class="text-gray-500 max-w-md">
-                This self-service dashboard is only available to employees. 
-                Please use the Demo Control Center to switch your role to <span class="font-semibold text-primary">Employee</span>.
+                This self-service dashboard is only available to employees.
             </p>
         </div>
 
         <!-- Dashboard -->
         <div v-else>
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">My Loans</h1>
-                <p class="text-gray-500">Track and manage your personal loan applications.</p>
+            <div class="mb-8 flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">My Loans</h1>
+                    <p class="text-gray-500">Track and manage your personal loan applications.</p>
+                </div>
+                <UButton label="Apply for a Loan" icon="i-lucide-plus" color="primary" @click="isModalOpen = true" />
             </div>
 
             <!-- Empty State -->
@@ -57,8 +72,7 @@ function getStatusColor(status: string) {
                 <UIcon name="i-lucide-piggy-bank" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">No Active Loans</h3>
                 <p class="text-gray-500 mb-6">You don't have any loan applications yet.</p>
-                <!-- We will wire this up when we build Apply for Loan -->
-                <UButton label="Apply for a Loan" color="primary" disabled />
+                <UButton label="Apply for a Loan" color="primary" @click="isModalOpen = true" />
             </div>
 
             <!-- Loading State -->
@@ -73,7 +87,7 @@ function getStatusColor(status: string) {
             <!-- Loan Cards -->
             <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <NuxtLink v-for="app in myApplications" :key="app.id" :to="`/my-loans/${app.id}`" class="block group">
-                    <UCard class="h-full transition-all duration-200 hover:shadow-lg hover:border-primary-500/50 cursor-pointer">
+                    <UCard variant="subtle" class="h-full transition-all duration-200 shadow-sm hover:shadow-lg hover:border-primary-500/50 cursor-pointer">
                         <template #header>
                             <div class="flex justify-between items-start">
                                 <div>
@@ -112,5 +126,7 @@ function getStatusColor(status: string) {
                 </NuxtLink>
             </div>
         </div>
+
+        <LoanApplicationModal v-model:open="isModalOpen" @submit="handleApply" />
     </div>
 </template>

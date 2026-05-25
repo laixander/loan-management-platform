@@ -2,7 +2,8 @@
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
-    '@nuxt/ui'
+    '@nuxt/ui',
+    '@pinia/nuxt'
   ],
 
   devtools: {
@@ -10,6 +11,10 @@ export default defineNuxtConfig({
   },
 
   css: ['~/assets/css/main.css'],
+
+  imports: {
+    dirs: ['stores', 'services', 'core']
+  },
 
   routeRules: {
     '/': { prerender: true }

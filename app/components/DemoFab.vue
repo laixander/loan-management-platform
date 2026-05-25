@@ -2,8 +2,8 @@
 // ============================================================================
 // Composables & State
 // ============================================================================
-const { seedAll, resetAll } = useDemoSeeder()
-const { isLoading } = useUsers()
+const { seedAll, resetAll } = useSeeder()
+const isLoading = ref(false)
 const toast = useAppToast()
 
 // ============================================================================

@@ -4,10 +4,10 @@ import { computed } from 'vue'
 const route = useRoute()
 const loanId = parseInt(route.params.id as string)
 
-const { currentRole, currentEmployeeId } = useDemoAuth()
+const authStore = useAuthStore()
 const { myApplications, getMySchedules, getMyLedger, isPending } = useMyLoans()
 
-const isEmployeeMode = computed(() => currentRole.value === 'Employee' && currentEmployeeId.value !== null)
+const isEmployeeMode = computed(() => authStore.currentRole === 'Employee' && authStore.currentEmployeeId !== null)
 
 const loan = computed(() => myApplications.value.find(a => a.id === loanId))
 const schedules = computed(() => getMySchedules(loanId))
@@ -122,9 +122,12 @@ function getStatusColor(status: string) {
 
 <template>
     <div class="p-6 max-w-6xl mx-auto w-full h-full">
-        <div v-if="!isEmployeeMode" class="flex flex-col items-center justify-center h-full gap-4 text-center">
+        <div v-if="!isEmployeeMode" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
             <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
             <h2 class="text-2xl font-bold">Employee Access Required</h2>
+            <p class="text-gray-500 max-w-md">
+                This self-service dashboard is only available to employees.
+            </p>
         </div>
 
         <div v-else-if="!isPending && !loan" class="flex flex-col items-center justify-center h-full gap-4 text-center">

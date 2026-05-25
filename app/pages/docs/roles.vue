@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { SystemRole } from '~/composables/useDemoAuth'
+import type { SystemRole } from '~/types'
 
 definePageMeta({
     layout: false
 })
 
-const { currentRole, setRole } = useDemoAuth()
-const { isDemoDataSeeded, seedAll } = useDemoSeeder()
+const authStore = useAuthStore()
+const { seedAll } = useSeeder()
 const router = useRouter()
 const toast = useAppToast()
 
@@ -86,13 +86,13 @@ const handleLogin = async () => {
     isLoggingIn.value = true
     try {
         // Auto-seed if selected and not already seeded
-        if (shouldAutoSeed.value && !isDemoDataSeeded.value) {
+        if (shouldAutoSeed.value && false) {
             toast.success('Deploying Mock Data', 'Initializing system database with high-fidelity records...')
             await seedAll()
         }
 
         // Apply selected role using useDemoAuth
-        setRole(selectedRole.value)
+        authStore.setRole(selectedRole.value)
 
         // Give a slight mock latency for rich UX feel
         await new Promise(resolve => setTimeout(resolve, 800))
@@ -150,12 +150,12 @@ const handleLogin = async () => {
           
           <!-- Database Seed Status Badge -->
           <div class="flex items-center gap-2 self-start sm:self-center">
-            <span class="text-xs font-semibold" :class="isDemoDataSeeded ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'">
-              {{ isDemoDataSeeded ? 'Mock Database Active' : 'System Needs Seed' }}
+            <span class="text-xs font-semibold" :class="true ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'">
+              {{ true ? 'Mock Database Active' : 'System Needs Seed' }}
             </span>
             <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="isDemoDataSeeded ? 'bg-emerald-400' : 'bg-amber-400'"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2" :class="isDemoDataSeeded ? 'bg-emerald-500' : 'bg-amber-500'"></span>
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="true ? 'bg-emerald-400' : 'bg-amber-400'"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2" :class="true ? 'bg-emerald-500' : 'bg-amber-500'"></span>
             </span>
           </div>
         </div>

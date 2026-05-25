@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { SystemRole } from '~/composables/useDemoAuth'
+import type { SystemRole } from '~/types'
 
 definePageMeta({
     layout: false
 })
 
-const { setRole } = useDemoAuth()
+const authStore = useAuthStore()
 const router = useRouter()
 
 const selectedRole = ref<SystemRole | undefined>(undefined)
@@ -13,17 +13,22 @@ const roleOptions: SystemRole[] = ['Admin', 'Employee', 'Finance', 'HR', 'Payrol
 
 const handleLogin = () => {
     if (!selectedRole.value) return
-    setRole(selectedRole.value)
+    authStore.setRole(selectedRole.value)
     router.push('/dashboard')
 }
 </script>
 <template>
     <div class="fixed inset-0 flex justify-center items-center bg-neutral-50 dark:bg-neutral-950">
-        <UCard>
-            <header class="space-y-2">
-                <div class="font-semibold text-xl text-highlighted text-center">Login</div>
-                <div class="text-sm text-muted text-center">Enter your credentials to access your account</div>
+        <UCard class="w-full max-w-sm shadow-sm">
+            <header class="space-y-3 text-center">
+                <div class="flex items-center justify-center gap-2">
+                    <UIcon name="i-lucide-hand-coins" class="size-8 text-primary" />
+                    <span class="text-2xl font-black tracking-tight">Loan<span
+                            class="text-primary">Management</span></span>
+                </div>
+                <div class="text-sm text-muted text-pretty">A Financial Wellness Solution for Employee</div>
             </header>
+            <USeparator class="my-6" />
             <main class="space-y-4 mt-10">
                 <UFormField label="Username">
                     <UInput placeholder="Enter your username" variant="soft" size="lg" class="w-full" />

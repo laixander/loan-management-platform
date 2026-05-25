@@ -26,12 +26,12 @@ const emit = defineEmits<{
 // ============================================================================
 // Composables
 // ============================================================================
-const { applications } = useLoanApplications()
-const { transactions } = useRepayments()
+const loanStore = useLoanStore()
+const repaymentStore = useRepaymentStore()
 
 // Filter for active loans
 const activeLoans = computed(() => {
-    return applications.value.filter(a => ['Approved', 'Disbursed', 'Active'].includes(a.status))
+    return loanStore.applications.filter(a => ['Approved', 'Disbursed', 'Active'].includes(a.status))
 })
 
 const loanOptions = computed(() => {
@@ -43,7 +43,7 @@ const loanOptions = computed(() => {
 
 // Calculate current balance based on transactions for a loan
 const calculateBalance = (appId: number) => {
-    const history = transactions.value
+    const history = repaymentStore.transactions
         .filter(t => t.loanApplicationId === appId)
         .sort((a, b) => new Date(a.transactionDate).getTime() - new Date(b.transactionDate).getTime())
     

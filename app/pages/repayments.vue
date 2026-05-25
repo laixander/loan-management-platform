@@ -21,7 +21,7 @@ definePageMeta({
     description: 'Monitor all financial transactions across active loan applications. This is an append-only ledger for data integrity.',
     isTable: true,
     headerActions: [
-        { label: 'Activity Logs', icon: 'i-lucide-clipboard-list', event: 'viewLogs', variant: 'ghost' },
+        { label: 'Activity Logs', icon: 'i-lucide-scroll-text', event: 'viewLogs', variant: 'ghost' },
         { label: 'Record Transaction', icon: 'i-lucide-plus', event: 'addTransaction', color: 'primary' }
     ]
 })
@@ -29,8 +29,9 @@ definePageMeta({
 // ============================================================================
 // Composables & State
 // ============================================================================
-const { transactions, recordTransaction, isPending: pending } = useRepayments()
-const { applications } = useLoanApplications()
+const repaymentStore = useRepaymentStore()
+const loanStore = useLoanStore()
+const authStore = useAuthStore()
 const events = useEvents()
 const overlay = useOverlay()
 
@@ -40,6 +41,9 @@ const formModal = overlay.create(RepaymentModal)
 // Local State
 const isAddModalOpen = ref(false)
 const isDrawerOpen = ref(false)
+const pending = ref(false)
+
+const isAuthorized = computed(() => ['Finance', 'Admin'].includes(authStore.currentRole ?? ''))
 
 // ============================================================================
 // Event Listeners
@@ -55,10 +59,12 @@ events.on('viewLogs', () => {
 // Methods
 // ============================================================================
 
-function handleAddTransaction(form: any) {
-    const app = applications.value.find(a => a.id === form.loanApplicationId)
+async function handleAddTransaction(form: any) {
+    const app = loanStore.applications.find(a => a.id === form.loanApplicationId)
     if (app) {
-        recordTransaction(app, form.transactionType, form.amount, form.description)
+        pending.value = true
+        await RepaymentService.recordTransaction(app, form.transactionType, form.amount, form.description)
+        pending.value = false
     }
 }
 
@@ -142,21 +148,22 @@ const columnVisibility = ref({})
 </script>
 
 <template>
-    <!-- <UPageCard title="Repayment Tracker (Ledger)"
+    <div v-if="!isAuthorized" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
+        <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
+        <h2 class="text-2xl font-bold">Finance / Admin Access Required</h2>
+    </div>
+
+    <template v-else>
+        <UPageCard title="Repayment Tracker (Ledger)"
         description="Monitor all financial transactions across active loan applications. This is an append-only ledger for data integrity."
         variant="naked" orientation="horizontal" class="border-b border-default rounded-none p-4 sm:p-6">
         <div class="flex justify-end gap-2 flex-1">
             <TableGlobalFilter v-model="globalFilter" />
             <TableColumnToggle :table="table" />
         </div>
-    </UPageCard> -->
+    </UPageCard>
 
-    <UDashboardToolbar :ui="{ root: 'min-h-(--ui-header-height)' }">
-        <TableGlobalFilter v-model="globalFilter" />
-        <TableColumnToggle :table="table" />
-    </UDashboardToolbar>
-
-    <UTable sticky ref="table" :data="transactions" :columns="columns" :loading="pending"
+    <UTable sticky ref="table" :data="repaymentStore.transactions" :columns="columns" :loading="pending"
         v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">
         <template #empty>
             <Empty :loading="pending" title="No Transactions"
@@ -171,7 +178,8 @@ const columnVisibility = ref({})
         </template>
     </UTable>
 
-    <RepaymentModal v-model:open="isAddModalOpen" @submit="handleAddTransaction" />
+        <RepaymentModal v-model:open="isAddModalOpen" @submit="handleAddTransaction" />
 
-    <LogsDrawer v-model:open="isDrawerOpen" namespace="repayments" />
+        <LogsDrawer v-model:open="isDrawerOpen" namespace="repayments" />
+    </template>
 </template>

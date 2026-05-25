@@ -12,6 +12,8 @@ export interface User {
   email: string
   role: string
   status: 'Active' | 'Inactive'
+  baseSalary: number
+  hireDate: string
 }
 
 /**
@@ -42,3 +44,6 @@ export * from './loan-application'
 export * from './repayment'
 export * from './approval'
 export * from './payroll'
+
+import type { ApprovalRole } from './approval'
+export type SystemRole = ApprovalRole | 'Employee'

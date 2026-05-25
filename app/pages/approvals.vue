@@ -21,15 +21,15 @@ definePageMeta({
     description: 'Review and process loan applications assigned to your role.',
     isTable: true,
     headerActions: [
-        { label: 'Activity Logs', icon: 'i-lucide-clipboard-list', event: 'viewLogs', variant: 'ghost' },
+        { label: 'Activity Logs', icon: 'i-lucide-scroll-text', event: 'viewLogs', variant: 'ghost' },
     ]
 })
 
 // ============================================================================
 // Composables & State
 // ============================================================================
-const { steps, processStep, isPending: pending } = useApprovals()
-const { currentRole } = useDemoAuth()
+const approvalStore = useApprovalStore()
+const authStore = useAuthStore()
 const events = useEvents()
 const overlay = useOverlay()
 
@@ -40,13 +40,16 @@ const formModal = overlay.create(ApprovalModal)
 const isAddModalOpen = ref(false)
 const isDrawerOpen = ref(false)
 const selectedStep = ref<ApprovalStep | null>(null)
+const pending = ref(false)
+
+const isAuthorized = computed(() => ['Supervisor', 'HR', 'Finance', 'Payroll', 'Admin'].includes(authStore.currentRole ?? ''))
 
 // Filter for role: Admin sees everything. Others see only their role's pending tasks.
 // Note: We only show Pending tasks in the queue.
 const filteredQueue = computed(() => {
-    return steps.value.filter(s => {
+    return approvalStore.steps.filter(s => {
         const isPending = s.status === 'Pending'
-        const matchesRole = currentRole.value === 'Admin' || s.role === currentRole.value
+        const matchesRole = authStore.currentRole === 'Admin' || s.role === authStore.currentRole
         return isPending && matchesRole
     })
 })
@@ -67,9 +70,11 @@ function handleReview(step: ApprovalStep) {
     isAddModalOpen.value = true
 }
 
-function handleFormSubmit(form: any) {
+async function handleFormSubmit(form: any) {
     if (selectedStep.value) {
-        processStep(selectedStep.value.id, form.status, form.comments)
+        pending.value = true
+        await ApprovalService.processStep(selectedStep.value.id, form.status, form.comments)
+        pending.value = false
     }
 }
 
@@ -127,6 +132,7 @@ const columns: TableColumn<ApprovalStep>[] = [
     },
     {
         id: 'actions',
+        meta: { class: { td: 'text-right', th: 'text-right' } },
         cell: ({ row }) => {
             return h(UButton, {
                 label: 'Review',
@@ -146,32 +152,34 @@ const columnVisibility = ref({})
 </script>
 
 <template>
-    <!-- <UPageCard title="Approval Queue"
+    <div v-if="!isAuthorized" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
+        <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
+        <h2 class="text-2xl font-bold">Approver Access Required</h2>
+    </div>
+
+    <template v-else>
+        <UPageCard title="Approval Queue"
         description="Review and process loan applications assigned to your role."
         variant="naked" orientation="horizontal" class="border-b border-default rounded-none p-4 sm:p-6">
         <div class="flex justify-end gap-2 flex-1 items-center">
             <TableGlobalFilter v-model="globalFilter" />
             <TableColumnToggle :table="table" />
         </div>
-    </UPageCard> -->
+    </UPageCard>
 
-    <UDashboardToolbar :ui="{ root: 'min-h-(--ui-header-height)' }">
-        <TableGlobalFilter v-model="globalFilter" />
-        <TableColumnToggle :table="table" />
-    </UDashboardToolbar>
+        <UTable sticky ref="table" :data="filteredQueue" :columns="columns" :loading="pending"
+            v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">
+            <template #empty>
+                <Empty :loading="pending" title="No Pending Approvals"
+                    description="There are currently no applications requiring your review."
+                    icon="i-lucide-check-square" loading-title="Loading Queue"
+                    loading-description="Please wait while we sync the approval queue.">
+                </Empty>
+            </template>
+        </UTable>
 
-    <UTable sticky ref="table" :data="filteredQueue" :columns="columns" :loading="pending"
-        v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">
-        <template #empty>
-            <Empty :loading="pending" title="No Pending Approvals"
-                description="There are currently no applications requiring your review."
-                icon="i-lucide-check-square" loading-title="Loading Queue"
-                loading-description="Please wait while we sync the approval queue.">
-            </Empty>
-        </template>
-    </UTable>
+        <ApprovalModal v-model:open="isAddModalOpen" :step="selectedStep" @submit="handleFormSubmit" />
 
-    <ApprovalModal v-model:open="isAddModalOpen" :step="selectedStep" @submit="handleFormSubmit" />
-
-    <LogsDrawer v-model:open="isDrawerOpen" namespace="approvals" />
+        <LogsDrawer v-model:open="isDrawerOpen" namespace="approvals" />
+    </template>
 </template>

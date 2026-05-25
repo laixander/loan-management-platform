@@ -1,0 +1,61 @@
+import type { RepaymentSchedule } from "~/types";
+
+export const mockSchedules: RepaymentSchedule[] = [
+    {
+        "id": 1,
+        "loanApplicationId": 1,
+        "loanRef": "LN-2026-001",
+        "employeeName": "John Doe",
+        "installmentNumber": 1,
+        "dueDate": "2026-05-15T00:00:00Z",
+        "principalAmount": 4166.67,
+        "interestAmount": 250,
+        "totalAmount": 4416.67,
+        "runningBalance": 45583.33,
+        "status": "Paid",
+        "paidDate": "2026-05-14T10:00:00Z"
+    },
+    {
+        "id": 2,
+        "loanApplicationId": 1,
+        "loanRef": "LN-2026-001",
+        "employeeName": "John Doe",
+        "installmentNumber": 2,
+        "dueDate": "2026-05-30T00:00:00Z",
+        "principalAmount": 4166.67,
+        "interestAmount": 250,
+        "totalAmount": 4416.67,
+        "runningBalance": 41166.66,
+        "status": "Pending",
+        "paidDate": null
+    },
+    {
+        "id": 3,
+        "loanApplicationId": 1,
+        "loanRef": "LN-2026-001",
+        "employeeName": "John Doe",
+        "installmentNumber": 3,
+        "dueDate": "2026-06-15T00:00:00Z",
+        "principalAmount": 4166.67,
+        "interestAmount": 250,
+        "totalAmount": 4416.67,
+        "runningBalance": 36749.99,
+        "status": "Pending",
+        "paidDate": null
+    },
+    {
+        "id": 4,
+        "loanApplicationId": 2,
+        "loanRef": "LN-2026-002",
+        "employeeName": "Jane Smith",
+        "installmentNumber": 1,
+        "dueDate": "2026-05-30T00:00:00Z",
+        "principalAmount": 3333.33,
+        "interestAmount": 100,
+        "totalAmount": 3433.33,
+        "runningBalance": 16566.67,
+        "status": "Pending",
+        "paidDate": null
+    }
+]
+;

@@ -19,10 +19,9 @@ import ConfirmationModal from '~/components/ConfirmationModal.vue'
 // ============================================================================
 definePageMeta({
     title: 'Loan Types',
-    description: 'Manage the different types of loans available to employees, including their terms and limits.',
     isTable: true,
     headerActions: [
-        { label: 'Activity Logs', icon: 'i-lucide-clipboard-list', event: 'viewLogs', variant: 'ghost' },
+        { label: 'Activity Logs', icon: 'i-lucide-scroll-text', event: 'viewLogs', variant: 'ghost' },
         { label: 'Add Loan Type', icon: 'i-lucide-plus', event: 'addLoanType', color: 'primary' }
     ]
 })
@@ -30,8 +29,8 @@ definePageMeta({
 // ============================================================================
 // Composables & State
 // ============================================================================
-// Services
-const { loanTypes, addLoanType, updateLoanType, deleteLoanType, isPending: pending } = useLoanTypes()
+const loanStore = useLoanStore()
+const authStore = useAuthStore()
 const events = useEvents()
 const overlay = useOverlay()
 
@@ -42,6 +41,9 @@ const confirmModal = overlay.create(ConfirmationModal)
 // Local State
 const isAddModalOpen = ref(false)
 const isDrawerOpen = ref(false)
+const pending = ref(false)
+
+const isAuthorized = computed(() => ['HR', 'Admin'].includes(authStore.currentRole ?? ''))
 
 // ============================================================================
 // Event Listeners
@@ -57,8 +59,10 @@ events.on('viewLogs', () => {
 // Methods
 // ============================================================================
 
-function handleAddLoanType(form: any) {
-    addLoanType(form)
+async function handleAddLoanType(form: any) {
+    pending.value = true
+    await LoanService.addLoanType(form)
+    pending.value = false
     isAddModalOpen.value = false
 }
 
@@ -72,8 +76,10 @@ function handleEditLoanType(loanType: LoanType) {
                 description: `Are you sure you want to save changes to ${form.name}?`,
                 confirmLabel: 'Save Changes',
                 confirmColor: 'warning',
-                onConfirm: () => {
-                    updateLoanType(loanType.id, form)
+                onConfirm: async () => {
+                    pending.value = true
+                    await LoanService.updateLoanType(loanType.id, form)
+                    pending.value = false
                 }
             })
         }
@@ -86,8 +92,10 @@ function handleDeleteLoanType(loanType: LoanType) {
         description: `Are you sure you want to delete the ${loanType.name} offering? This action cannot be undone.`,
         confirmLabel: 'Delete',
         confirmColor: 'error',
-        onConfirm: () => {
-            deleteLoanType(loanType.id)
+        onConfirm: async () => {
+            pending.value = true
+            await LoanService.deleteLoanType(loanType.id)
+            pending.value = false
         }
     })
 }
@@ -100,8 +108,10 @@ function handleToggleStatus(loanType: LoanType) {
         description: `Are you sure you want to ${isActivating ? 'activate' : 'deactivate'} ${loanType.name}?`,
         confirmLabel: isActivating ? 'Activate' : 'Deactivate',
         confirmColor: isActivating ? 'success' : 'warning',
-        onConfirm: () => {
-            updateLoanType(loanType.id, { isActive: isActivating })
+        onConfirm: async () => {
+            pending.value = true
+            await LoanService.updateLoanType(loanType.id, { isActive: isActivating })
+            pending.value = false
         }
     })
 }
@@ -200,20 +210,23 @@ const columnVisibility = ref({})
 </script>
 
 <template>
-    <!-- <UPageCard title="Loan Types Configuration"
+    <div v-if="!isAuthorized" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
+        <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
+        <h2 class="text-2xl font-bold">HR / Admin Access Required</h2>
+    </div>
+
+    <template v-else>
+        
+    <UPageCard title="Loan Types Configuration"
         description="Manage the different types of loans available to employees, including their terms and limits."
         variant="naked" orientation="horizontal" class="border-b border-default rounded-none p-4 sm:p-6">
         <div class="flex justify-end gap-2 flex-1">
             <TableGlobalFilter v-model="globalFilter" />
             <TableColumnToggle :table="table" />
         </div>
-    </UPageCard> -->
-    <UDashboardToolbar :ui="{ root: 'min-h-(--ui-header-height)' }">
-        <TableGlobalFilter v-model="globalFilter" />
-        <TableColumnToggle :table="table" />
-    </UDashboardToolbar>
+    </UPageCard>
 
-    <UTable sticky ref="table" :data="loanTypes" :columns="columns" :loading="pending"
+    <UTable sticky ref="table" :data="loanStore.types" :columns="columns" :loading="pending"
         v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">
         <template #empty>
             <Empty :loading="pending" title="No Loan Types"
@@ -228,7 +241,8 @@ const columnVisibility = ref({})
         </template>
     </UTable>
 
-    <LoanTypeModal v-model:open="isAddModalOpen" @submit="handleAddLoanType" />
+        <LoanTypeModal v-model:open="isAddModalOpen" @submit="handleAddLoanType" />
 
-    <LogsDrawer v-model:open="isDrawerOpen" namespace="loan-types" />
+        <LogsDrawer v-model:open="isDrawerOpen" namespace="loan-types" />
+    </template>
 </template>

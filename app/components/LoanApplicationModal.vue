@@ -27,14 +27,16 @@ const emit = defineEmits<{
 // ============================================================================
 // Composables
 // ============================================================================
-const { users } = useUsers()
-const { loanTypes } = useLoanTypes()
+const userStore = useUserStore()
+const loanStore = useLoanStore()
+const authStore = useAuthStore()
 
 // ============================================================================
 // State
 // ============================================================================
 const isOpen = defineModel<boolean>('open', { default: false })
 const formRef = useTemplateRef('form')
+const isEmployee = computed(() => authStore.currentRole === 'Employee')
 
 const statusOptions: LoanStatus[] = [
     'Draft', 'Pending', 'Under Review', 'Approved', 'Rejected', 'Disbursed', 'Active', 'Completed', 'Defaulted'
@@ -62,13 +64,13 @@ const form = reactive({
     termMonths: props.application?.termMonths || 0,
     interestRate: props.application?.interestRate || 0,
     monthlyAmortization: props.application?.monthlyAmortization || null,
-    status: props.application?.status || 'Draft' as LoanStatus,
+    status: props.application?.status || (isEmployee.value ? 'Pending' : 'Draft') as LoanStatus,
     remarks: props.application?.remarks ?? undefined
 })
 
 // Options for USelectMenu
-const employeeOptions = computed(() => users.value.map(u => ({ label: u.name, value: u.id })))
-const loanTypeOptions = computed(() => loanTypes.value.map(lt => ({ label: lt.name, value: lt.id })))
+const employeeOptions = computed(() => userStore.users.map(u => ({ label: u.name, value: u.id })))
+const loanTypeOptions = computed(() => loanStore.types.map(lt => ({ label: lt.name, value: lt.id })))
 
 // ============================================================================
 // Watchers for Auto-Calculation
@@ -78,7 +80,7 @@ const loanTypeOptions = computed(() => loanTypes.value.map(lt => ({ label: lt.na
 watch(() => form.loanTypeId, (newId) => {
     // Only auto-fill if we're creating a new one, or if they explicitly changed it
     if (!props.application || props.application.loanTypeId !== newId) {
-        const selectedType = loanTypes.value.find(lt => lt.id === newId)
+        const selectedType = loanStore.types.find(lt => lt.id === newId)
         if (selectedType) {
             form.interestRate = selectedType.interestRate
             // Optional: Set default term if 0
@@ -110,11 +112,14 @@ watch(() => props.application, (newVal) => {
 
 function onSubmit(event: FormSubmitEvent<Schema>) {
     // Denormalize the names
-    const employee = users.value.find(u => u.id === event.data.employeeId)
-    const loanType = loanTypes.value.find(lt => lt.id === event.data.loanTypeId)
+    const employee = userStore.users.find(u => u.id === event.data.employeeId)
+    const loanType = loanStore.types.find(lt => lt.id === event.data.loanTypeId)
+
+    const finalStatus = (isEmployee.value && !props.application) ? 'Pending' : event.data.status
 
     emit('submit', { 
         ...event.data,
+        status: finalStatus,
         employeeName: employee?.name || 'Unknown Employee',
         loanType: loanType?.name || 'Unknown Type',
         remarks: event.data.remarks ?? null
@@ -137,7 +142,7 @@ function resetForm() {
     form.termMonths = 0
     form.interestRate = 0
     form.monthlyAmortization = null
-    form.status = 'Draft'
+    form.status = isEmployee.value ? 'Pending' : 'Draft'
     form.remarks = undefined
     formRef.value?.clear()
 }
@@ -177,7 +182,7 @@ function resetForm() {
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <UFormField label="Approved Amount (₱)" name="approvedAmount">
+                        <UFormField label="Approved Amount (₱)" name="approvedAmount" v-if="!isEmployee">
                             <UInput v-model.number="form.approvedAmount" type="number" icon="i-lucide-philippine-peso" class="w-full" placeholder="Optional" />
                         </UFormField>
                         
@@ -187,16 +192,16 @@ function resetForm() {
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <UFormField label="Monthly Amortization (₱)" name="monthlyAmortization">
+                        <UFormField label="Monthly Amortization (₱)" name="monthlyAmortization" v-if="!isEmployee">
                             <UInput v-model.number="form.monthlyAmortization" type="number" icon="i-lucide-philippine-peso" class="w-full" placeholder="Optional" />
                         </UFormField>
                         
-                        <UFormField label="Status" name="status">
+                        <UFormField label="Status" name="status" v-if="!isEmployee">
                             <USelect v-model="form.status" :items="statusOptions" class="w-full" />
                         </UFormField>
                     </div>
 
-                    <UFormField label="Remarks" name="remarks">
+                    <UFormField label="Remarks" name="remarks" v-if="!isEmployee">
                         <UTextarea v-model="form.remarks" placeholder="Add any notes or comments here" class="w-full" />
                     </UFormField>
 

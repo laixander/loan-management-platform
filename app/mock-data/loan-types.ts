@@ -1,0 +1,85 @@
+import type { LoanType } from "~/types";
+
+export const mockLoanTypes: LoanType[] = [
+    {
+        "id": 1,
+        "name": "Salary Loan",
+        "description": "Standard multi-purpose loan based on monthly basic salary.",
+        "maxAmount": 100000,
+        "minTenureMonths": 6,
+        "interestRate": 6,
+        "interestMethod": "diminishing",
+        "maxRepaymentMonths": 24,
+        "requiredDocuments": ["Payslip", "Company ID"],
+        "isActive": true,
+        "activeLoans": 18,
+        "totalDisbursed": 3500000,
+        "createdAt": "2026-01-10T08:00:00Z",
+        "updatedAt": "2026-05-21T08:00:00Z"
+    },
+    {
+        "id": 2,
+        "name": "Emergency Loan",
+        "description": "Quick access funds for medical or family emergencies.",
+        "maxAmount": 50000,
+        "minTenureMonths": 3,
+        "interestRate": 3,
+        "interestMethod": "flat",
+        "maxRepaymentMonths": 12,
+        "requiredDocuments": ["Medical Certificate or Proof of Emergency"],
+        "isActive": true,
+        "activeLoans": 12,
+        "totalDisbursed": 1800000,
+        "createdAt": "2026-01-15T09:00:00Z",
+        "updatedAt": "2026-05-21T08:00:00Z"
+    },
+    {
+        "id": 3,
+        "name": "Calamity Loan",
+        "description": "Financial assistance for employees affected by natural disasters.",
+        "maxAmount": 50000,
+        "minTenureMonths": 1,
+        "interestRate": 0,
+        "interestMethod": "flat",
+        "maxRepaymentMonths": 24,
+        "requiredDocuments": ["Barangay Certificate of Calamity", "Photos"],
+        "isActive": true,
+        "activeLoans": 5,
+        "totalDisbursed": 750000,
+        "createdAt": "2026-02-01T10:00:00Z",
+        "updatedAt": "2026-05-21T08:00:00Z"
+    },
+    {
+        "id": 4,
+        "name": "Equipment Loan",
+        "description": "Loan for purchasing work-from-home equipment or laptops.",
+        "maxAmount": 150000,
+        "minTenureMonths": 6,
+        "interestRate": 8,
+        "interestMethod": "diminishing",
+        "maxRepaymentMonths": 36,
+        "requiredDocuments": ["Quotation of Equipment"],
+        "isActive": true,
+        "activeLoans": 7,
+        "totalDisbursed": 1900000,
+        "createdAt": "2026-03-10T11:00:00Z",
+        "updatedAt": "2026-05-21T08:00:00Z"
+    },
+    {
+        "id": 5,
+        "name": "Cash Advance",
+        "description": "Short-term advance on next payroll cutoff.",
+        "maxAmount": 20000,
+        "minTenureMonths": 3,
+        "interestRate": 0,
+        "interestMethod": "flat",
+        "maxRepaymentMonths": 3,
+        "requiredDocuments": [],
+        "isActive": true,
+        "activeLoans": 5,
+        "totalDisbursed": 800000,
+        "createdAt": "2026-04-05T14:00:00Z",
+        "updatedAt": "2026-05-21T08:00:00Z"
+    }
+]
+;

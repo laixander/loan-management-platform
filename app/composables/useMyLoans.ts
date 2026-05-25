@@ -4,36 +4,33 @@
 // Employee-facing secure view layer over the existing data stores.
 
 export const useMyLoans = () => {
-    const { currentEmployeeId } = useDemoAuth()
-    const { applications, isPending: applicationsPending } = useLoanApplications()
-    const { schedules, isPending: schedulesPending } = useSchedules()
-    const { transactions, isPending: transactionsPending } = useRepayments()
+    const authStore = useAuthStore()
+    const loanStore = useLoanStore()
+    const repaymentStore = useRepaymentStore()
 
-    const isPending = computed(() => {
-        return applicationsPending.value || schedulesPending.value || transactionsPending.value
-    })
+    const isPending = ref(false)
 
     const myApplications = computed(() => {
-        if (!currentEmployeeId.value) return []
-        return applications.value.filter(a => a.employeeId === currentEmployeeId.value)
+        if (!authStore.currentEmployeeId) return []
+        return loanStore.applications.filter(a => a.employeeId === authStore.currentEmployeeId)
     })
 
     const getMySchedules = (loanApplicationId: number) => {
-        if (!currentEmployeeId.value) return []
+        if (!authStore.currentEmployeeId) return []
         // Verify ownership
         const isOwner = myApplications.value.some(a => a.id === loanApplicationId)
         if (!isOwner) return []
 
-        return schedules.value.filter(s => s.loanApplicationId === loanApplicationId)
+        return loanStore.schedules.filter(s => s.loanApplicationId === loanApplicationId)
     }
 
     const getMyLedger = (loanApplicationId: number) => {
-        if (!currentEmployeeId.value) return []
+        if (!authStore.currentEmployeeId) return []
         // Verify ownership
         const isOwner = myApplications.value.some(a => a.id === loanApplicationId)
         if (!isOwner) return []
 
-        return transactions.value.filter(t => t.loanApplicationId === loanApplicationId)
+        return repaymentStore.transactions.filter(t => t.loanApplicationId === loanApplicationId)
     }
 
     return {

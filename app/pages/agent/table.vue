@@ -30,8 +30,7 @@ definePageMeta({
 // ============================================================================
 // Composables & State
 // ============================================================================
-// Services
-const { users, addUser, updateUser, deleteUser, isPending: pending } = useUsers()
+const userStore = useUserStore()
 const events = useEvents()
 const overlay = useOverlay()
 const { logUserAdded, logUserUpdated, logUserDeleted, logUserToggleStatus } = useAppLogger()
@@ -43,6 +42,7 @@ const confirmModal = overlay.create(ConfirmationModal)
 // Local State
 const isAddUserOpen = ref(false)
 const isDrawerOpen = ref(false)
+const pending = ref(false)
 
 // ============================================================================
 // Event Listeners
@@ -64,7 +64,9 @@ events.on('viewLogs', () => {
  * Submits the form data from the Add User modal.
  */
 async function handleAddUser(userForm: Omit<User, 'id'>) {
-    await addUser(userForm)
+    pending.value = true
+    await UserService.addUser(userForm)
+    pending.value = false
     logUserAdded(userForm.name)
     isAddUserOpen.value = false
 }
@@ -83,8 +85,10 @@ function handleEditUser(user: User) {
                 description: `Are you sure you want to save changes to ${userForm.name}?`,
                 confirmLabel: 'Save Changes',
                 confirmColor: 'warning',
-                onConfirm: () => {
-                    updateUser(user.id, userForm)
+                onConfirm: async () => {
+                    pending.value = true
+                    await UserService.updateUser(user.id, userForm)
+                    pending.value = false
                     logUserUpdated(userForm.name)
                 }
             })
@@ -102,8 +106,10 @@ function handleDeleteUser(user: User) {
         description: `Are you sure you want to delete ${user.name}? This action cannot be undone.`,
         confirmLabel: 'Delete',
         confirmColor: 'error',
-        onConfirm: () => {
-            deleteUser(user.id)
+        onConfirm: async () => {
+            pending.value = true
+            await UserService.deleteUser(user.id)
+            pending.value = false
             logUserDeleted(user.name)
         }
     })
@@ -122,8 +128,10 @@ function handleToggleStatus(user: User) {
         description: `Are you sure you want to ${isActivating ? 'activate' : 'deactivate'} ${user.name}?`,
         confirmLabel: isActivating ? 'Activate' : 'Deactivate',
         confirmColor: isActivating ? 'success' : 'warning',
-        onConfirm: () => {
-            updateUser(user.id, { status: newStatus })
+        onConfirm: async () => {
+            pending.value = true
+            await UserService.updateUser(user.id, { status: newStatus })
+            pending.value = false
             logUserToggleStatus(user.name, isActivating)
         }
     })
@@ -243,7 +251,7 @@ const columnVisibility = ref({
         </div>
     </UPageCard>
 
-    <UTable sticky ref="table" :data="users" :columns="columns" :loading="pending"
+    <UTable sticky ref="table" :data="userStore.users" :columns="columns" :loading="pending"
         v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">
         <template #empty>
             <Empty :loading="pending" title="No users found"
