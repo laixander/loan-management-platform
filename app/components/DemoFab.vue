@@ -50,6 +50,11 @@ const items = computed(() => [
     // Navigation group
     [
         {
+            label: 'App',
+            icon: 'i-lucide-blocks',
+            to: '/'
+        },
+        {
             label: 'Presentation',
             icon: 'i-lucide-airplay',
             to: '/docs/presentation'

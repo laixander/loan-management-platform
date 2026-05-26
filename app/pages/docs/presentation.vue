@@ -311,25 +311,29 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="h-screen w-screen overflow-hidden bg-neutral-50 dark:bg-neutral-950 flex flex-col">
-        <!-- add select-none class -->
+    <div class="h-screen w-screen overflow-hidden bg-neutral-50 dark:bg-neutral-950 flex flex-col select-none">
 
-        <!-- ── Top Bar ─────────────────────────────────────────────────── -->
-        <div class="shrink-0 h-12 flex items-center justify-between px-6 border-b border-neutral-200/50 dark:border-neutral-800/50 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-md z-20">
-            <div class="flex items-center gap-3">
-                <UIcon name="i-lucide-hand-coins" class="size-6 text-primary" />
-                <span class="font-bold text-neutral-900 dark:text-white">Loan<span class="text-primary">Management</span></span>
-                <UBadge label="Presentation" variant="soft" class="ml-1" />
+        <div class="group relative z-50 shrink-0">
+            <!-- Invisible hit area to trigger hover -->
+            <div class="absolute top-0 left-0 right-0 h-16 z-30" />
+            
+            <!-- ── Top Bar ─────────────────────────────────────────────────── -->
+            <div class="absolute top-0 left-0 right-0 h-12 flex items-center justify-between px-6 border-b border-neutral-200/50 dark:border-neutral-800/50 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md transition-all duration-300 -translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 z-50">
+                <div class="flex items-center gap-3">
+                    <UIcon name="i-lucide-hand-coins" class="size-6 text-primary" />
+                    <span class="font-bold text-neutral-900 dark:text-white">Loan<span class="text-primary">Management</span></span>
+                    <UBadge label="Presentation" variant="soft" class="ml-1" />
+                </div>
+                <div class="flex items-center gap-4 relative z-50">
+                    <span class="text-xs font-mono text-neutral-400">{{ currentSlide + 1 }} / {{ totalSlides }}</span>
+                    <UColorModeButton color="neutral" size="xs" class="cursor-pointer pointer-events-auto" />
+                </div>
             </div>
-            <div class="flex items-center gap-4">
-                <span class="text-xs font-mono text-neutral-400">{{ currentSlide + 1 }} / {{ totalSlides }}</span>
-                <UColorModeButton color="neutral" size="xs" class="cursor-pointer" />
-            </div>
-        </div>
 
-        <!-- ── Progress Bar ────────────────────────────────────────────── -->
-        <div class="shrink-0 h-0.5 bg-neutral-100 dark:bg-neutral-900">
-            <div class="h-full bg-gradient-to-r from-primary-500 to-emerald-500 transition-all duration-500 ease-out" :style="{ width: progress + '%' }" />
+            <!-- ── Progress Bar ────────────────────────────────────────────── -->
+            <div class="relative z-30 h-1 bg-neutral-200 dark:bg-neutral-800 transition-transform duration-300 group-hover:translate-y-12">
+                <div class="h-full bg-gradient-to-r from-primary-500 to-emerald-500 transition-all duration-500 ease-out" :style="{ width: progress + '%' }" />
+            </div>
         </div>
 
         <!-- ── Main Slide Content ──────────────────────────────────────── -->
@@ -361,7 +365,7 @@ onUnmounted(() => {
                         <p class="text-sm text-neutral-600 dark:text-neutral-300 mb-8 italic">{{ (activeSlide.content as any).tagline }}</p>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             <div v-for="h in (activeSlide.content as any).highlights" :key="h.label"
-                                class="p-5 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm text-center hover:shadow-md hover:-translate-y-0.5 transition-all">
+                                class="p-4 sm:p-6 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm text-center hover:shadow-md hover:-translate-y-0.5 transition-all">
                                 <UIcon :name="h.icon" class="size-7 text-primary mb-2 mx-auto" />
                                 <div class="text-2xl font-extrabold text-neutral-900 dark:text-white">{{ h.value }}</div>
                                 <div class="text-sm text-neutral-500 mt-1">{{ h.label }}</div>
@@ -373,7 +377,7 @@ onUnmounted(() => {
                     <template v-if="activeSlide.content.type === 'features'">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div v-for="item in (activeSlide.content as any).items" :key="item.title"
-                                class="p-5 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                                class="p-4 sm:p-6 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
                                 <div class="flex items-center gap-3 mb-3">
                                     <div class="size-10 rounded-xl bg-primary-500/10 flex items-center justify-center shrink-0">
                                         <UIcon :name="item.icon" class="size-5 text-primary" />
@@ -389,7 +393,7 @@ onUnmounted(() => {
                     <template v-if="activeSlide.content.type === 'workflow'">
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                             <div v-for="(step, idx) in (activeSlide.content as any).steps" :key="step.title"
-                                class="relative p-4 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                                class="relative p-4 sm:p-6 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
                                 <div class="absolute top-3 right-3 size-6 rounded-full bg-primary-500/10 flex items-center justify-center text-[10px] font-bold text-primary">
                                     {{ Number(idx) + 1 }}
                                 </div>
@@ -405,7 +409,7 @@ onUnmounted(() => {
                     <template v-if="activeSlide.content.type === 'architecture'">
                         <div class="space-y-4">
                             <div v-for="layer in (activeSlide.content as any).layers" :key="layer.title"
-                                class="p-5 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm hover:shadow-md transition-all">
+                                class="p-4 sm:p-6 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm hover:shadow-md transition-all">
                                 <div class="flex items-center gap-3 mb-3">
                                     <div class="size-10 rounded-xl bg-primary-500/10 flex items-center justify-center shrink-0">
                                         <UIcon :name="layer.icon" class="size-5 text-primary" />
@@ -426,7 +430,7 @@ onUnmounted(() => {
                     <template v-if="activeSlide.content.type === 'stats'">
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                             <div v-for="metric in (activeSlide.content as any).metrics" :key="metric.label"
-                                class="p-5 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm text-center hover:shadow-md hover:-translate-y-0.5 transition-all">
+                                class="p-4 sm:p-6 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm text-center hover:shadow-md hover:-translate-y-0.5 transition-all">
                                 <UIcon :name="metric.icon" class="size-7 text-primary mb-2 mx-auto" />
                                 <div class="text-3xl font-extrabold">{{ metric.value }}</div>
                                 <div class="text-sm font-semibold mt-1">{{ metric.label }}</div>
@@ -439,7 +443,7 @@ onUnmounted(() => {
                     <template v-if="activeSlide.content.type === 'roles'">
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                             <div v-for="role in (activeSlide.content as any).roles" :key="role.name"
-                                class="p-4 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                                class="p-4 sm:p-6 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
                                 <div class="flex items-center gap-2 mb-3">
                                     <UIcon :name="role.icon" class="size-5 text-primary" />
                                     <h4 class="font-bold text-neutral-900 dark:text-white">{{ role.name }}</h4>
@@ -458,7 +462,7 @@ onUnmounted(() => {
                     <template v-if="activeSlide.content.type === 'tech'">
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div v-for="cat in (activeSlide.content as any).categories" :key="cat.title"
-                                class="p-5 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm">
+                                class="p-4 sm:p-6 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm">
                                 <div class="flex items-center gap-2 mb-4">
                                     <UIcon :name="cat.icon" class="size-5 text-primary" />
                                     <h4 class="font-bold text-neutral-900 dark:text-white">{{ cat.title }}</h4>

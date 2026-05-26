@@ -152,6 +152,112 @@ const modulesData = [
     ]
   }
 ]
+
+const employeeJourney = [
+  { title: 'Access Dashboard', desc: 'Employee signs in to the portal and navigates to the Loan Management widget.' },
+  { title: 'Program & Eligibility Review', desc: 'Selects the desired program type (e.g. Salary, Emergency). System runs real-time filters against tenure and existing limits.' },
+  { title: 'Simulate & Calculate', desc: 'Adjusts sliders on the calculator to forecast exact amortization payments, checking the net-pay threshold indicator.' },
+  { title: 'Wizard Submission', desc: 'Fills required forms (with preloaded details) and uploads supporting proofs/statements.' },
+  { title: 'Workflow Routing', desc: 'Application is dispatched into the sequential engine, generating push/email alerts for supervisor validation.' },
+  { title: 'HR & Finance Audits', desc: 'Admins verify information, run payroll conflict checks, and approve the request.' },
+  { title: 'Disbursal Release', desc: 'Finance registers payment release details. An ledger record is opened initializing outstanding balance.' },
+  { title: 'Deductions Triggered', desc: 'Automated scheduler picks up active schedules during payroll runs, recording matching ledger adjustments.' },
+  { title: 'Dashboard Monitoring', desc: 'Employee views outstanding balance, next payment timeline, and amortization updates.' },
+  { title: 'Ledger Completion', desc: 'Final scheduled deduction executes successfully, balance touches zero, and system marks state as completed.' }
+]
+
+const integrations = [
+  { name: 'Employee Profiles', key: 'Profiles REST', action: 'Syncs core employment status, hiring anniversary data, and department structures for initial eligibility checks.' },
+  { name: 'Payroll Engine', key: 'Payroll Cutoff MQ', action: 'Queues active loan amortization schedules for extraction into dynamic payslip deduction blocks during pay runs.' },
+  { name: 'Attendance & Leave', key: 'Compensation REST', action: 'Fetches paid suspension records, leave status, and general hours to determine net-take-home eligibility.' },
+  { name: 'Accounting / ERP', key: 'General Ledger API', action: 'Triggers journal ledger adjustments (Receivables vs Liabilities) upon disbursement release and payroll deduction runs.' },
+  { name: 'Alerts & Messages', key: 'Notification MQ', action: 'Broadcasts multi-channel alerts (SMS, Email, Push) triggered by engine status actions.' },
+  { name: 'Document Vault', key: 'AWS S3 / Vault API', action: 'Stores encrypted copies of identity proofs, bank credentials, and digital agreements with secure temporary links.' }
+]
+
+const integrationColumns = [
+  { accessorKey: 'name', header: 'HRIS Core Module' },
+  { accessorKey: 'key', header: 'Channel Connection' },
+  { accessorKey: 'action', header: 'Functional Sync Action' }
+]
+
+const architectureLayers = [
+  { name: 'Presentation Layer', desc: 'Nuxt 3, Vue 3, Nuxt UI. Responsible for rendering the interactive dashboard, wizards, and real-time state visualization.', icon: 'i-lucide-layout', color: 'blue' },
+  { name: 'Application Logic', desc: 'Pinia Stores & Vue Composables. Manages client state, RBAC (Role-Based Access Control) authentication, and orchestrates domain actions.', icon: 'i-lucide-cpu', color: 'emerald' },
+  { name: 'Domain Services', desc: 'Core business rules. Contains the Financial Engine (amortization math) and Lifecycle orchestrator (state transitions).', icon: 'i-lucide-briefcase', color: 'amber' },
+  { name: 'Persistence Mock', desc: 'Nitro Fake Backend & Local Storage. Simulates asynchronous REST API delays, database queries, and data immutability.', icon: 'i-lucide-database', color: 'purple' }
+]
+
+const dataModels = [
+  { entity: 'User', fields: ['id', 'name', 'email', 'role', 'status', 'baseSalary', 'hireDate'], relation: 'Core Account Profile' },
+  { entity: 'LoanType', fields: ['id', 'name', 'maxAmount', 'interestRate', 'interestMethod', 'minTenureMonths', 'isActive'], relation: '1:N with Applications' },
+  { entity: 'LoanApplication', fields: ['id', 'loanRef', 'employeeId', 'loanTypeId', 'requestedAmount', 'status', 'applicationDate', 'termMonths'], relation: 'Core Aggregate Root' },
+  { entity: 'RepaymentSchedule', fields: ['id', 'loanApplicationId', 'installmentNumber', 'dueDate', 'principalAmount', 'interestAmount', 'status'], relation: 'N:1 with Application' },
+  { entity: 'PayrollDeduction', fields: ['id', 'loanId', 'amount', 'payrollDate', 'status'], relation: 'Integration with Payroll' },
+  { entity: 'ApprovalStep', fields: ['id', 'applicationId', 'role', 'status', 'actionDate', 'remarks'], relation: 'Workflow Engine State' },
+  { entity: 'LoanTransaction', fields: ['id', 'loanApplicationId', 'type', 'amount', 'transactionDate', 'reference'], relation: 'Ledger Audit Trail' },
+  { entity: 'LoanDocument', fields: ['id', 'loanApplicationId', 'documentName', 'documentType', 'filePath'], relation: 'Storage Metadata' },
+  { entity: 'EligibilityRule', fields: ['id', 'loanTypeId', 'ruleType', 'operator', 'value'], relation: 'Policy Configuration' },
+  { entity: 'AppLog', fields: ['id', 'message', 'state', 'level', 'timestamp'], relation: 'System Activity (Immutable)' }
+]
+
+const personas = [
+  {
+    role: 'Employees',
+    icon: 'i-lucide-user',
+    color: 'blue',
+    label: 'Self-Service',
+    tasks: [
+      'Apply for loans & check eligibility',
+      'Monitor active amortization',
+      'Download payment statements'
+    ]
+  },
+  {
+    role: 'HR Administrators',
+    icon: 'i-lucide-settings',
+    color: 'emerald',
+    label: 'Policy Owner',
+    tasks: [
+      'Configure loan programs & policies',
+      'Manage employee profiles',
+      'Oversee approval workflows'
+    ]
+  },
+  {
+    role: 'Payroll Officers',
+    icon: 'i-lucide-wallet',
+    color: 'orange',
+    label: 'Executioner',
+    tasks: [
+      'Trigger deduction cycles',
+      'Manage hold/skip requests',
+      'Post payments to pay runs'
+    ]
+  },
+  {
+    role: 'Finance Team',
+    icon: 'i-lucide-activity',
+    color: 'purple',
+    label: 'Auditor',
+    tasks: [
+      'Audit balance sheets',
+      'Release disbursal funds',
+      'Generate ledger reports'
+    ]
+  },
+  {
+    role: 'Approvers (Supervisors)',
+    icon: 'i-lucide-check-square',
+    color: 'pink',
+    label: 'Gatekeeper',
+    tasks: [
+      'Review request justifications',
+      'Approve/reject entries',
+      'Track team requests'
+    ]
+  }
+] as any
 </script>
 
 <template>
@@ -167,7 +273,7 @@ const modulesData = [
             <UBadge label="Documentation" icon="i-lucide-book" variant="subtle" color="primary" size="lg" class="rounded-full px-3 py-1.5 w-fit" />
             <div class="flex flex-col gap-3 mt-6">
                 <h1 class="text-3xl sm:text-5xl text-pretty font-bold text-highlighted">
-                    Loan Management <span class="text-primary-600 dark:text-primary-400">Platform</span>
+                    Platform <span class="text-primary-600 dark:text-primary-400">Documentation</span>
                 </h1>
                 <p class="text-lg text-pretty text-primary-600 dark:text-primary-700 font-light">
                     A comprehensive, digital employee loan suite fully aligned with payroll runs, company policy parameters, approval limits, and multi-tier workflows.
@@ -184,7 +290,7 @@ const modulesData = [
     >
         <UContainer class="py-3 flex items-center justify-between">
             <h1 class="text-lg font-bold text-highlighted leading-none">
-                User <span class="text-primary-600 dark:text-primary-400">Manual</span>
+                Platform <span class="text-primary-600 dark:text-primary-400">Documentation</span>
             </h1>
             <div class="flex items-center gap-3">
                 <UColorModeButton color="primary" class="cursor-pointer hover:scale-105 transition-transform" />
@@ -214,24 +320,24 @@ const modulesData = [
                             <p class="text-neutral-600 dark:text-neutral-300 leading-relaxed">
                                 Managing employee financial assistance programmatically reduces HR overhead while empowering employees. The submodule automates calculations, limits manual entries, and integrates securely with pay schedules.
                             </p>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div v-for="(item, idx) in [
-                                    'Provide structured employee loan programs',
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                              <UCard variant="soft" v-for="(item, idx) in [
                                     'Digitize loan application & approval',
                                     'Automate salary deductions',
                                     'Monitor balances in real time',
                                     'Reduce manual HR processing',
+                                    'Provide structured employee loan programs',
                                     'Improve financial transparency'
-                                ]" :key="idx" class="flex items-center gap-3 p-3 rounded-xl border border-default bg-white dark:bg-neutral-900 shadow-sm">
-                                    <UIcon name="i-lucide-check-circle" class="size-5 text-emerald-500 shrink-0" />
+                                ]" :key="idx" :ui="{ body: 'flex gap-2' }">
+                                    <UIcon name="i-lucide-check-circle" class="size-5 text-primary-500 shrink-0" />
                                     <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">{{ item }}</span>
-                                </div>
+                              </UCard>
                             </div>
                         </div>
 
                         <!-- Business Value Stats -->
-                        <UCard variant="subtle" :ui="{ body: 'flex flex-col gap-6' }" class="bg-gradient-to-br from-primary-50 dark:from-primary-950/30 to-emerald-50 dark:to-emerald-950/30 ring-primary-200 dark:ring-primary-800/50 rounded-2xl h-fit">
-                            <h3 class="font-bold text-lg text-neutral-900 dark:text-white leading-none flex items-center gap-2">
+                        <UCard variant="subtle" :ui="{ body: 'flex flex-col gap-6' }" class="bg-primary/5 dark:bg-primary-950/20 ring-primary-200 dark:ring-primary-800/50 rounded-2xl h-fit">
+                            <h3 class="font-bold leading-none flex items-center gap-2">
                                 <UIcon name="i-lucide-trending-up" class="text-primary size-5" />
                                 Business Value
                             </h3>
@@ -274,74 +380,15 @@ const modulesData = [
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <!-- Employee -->
-                            <UCard variant="subtle" class="hover:border-blue-500/30 transition-colors">
-                                <div class="p-2.5 rounded-xl bg-blue-500/10 text-blue-500 w-fit mb-4">
-                                    <UIcon name="i-lucide-user" class="size-6 shrink-0 flex" />
+                            <UCard v-for="(persona, pIdx) in personas" :key="pIdx" variant="subtle" class="shadow-sm transition-colors" :class="`hover:border-${persona.color}-500/30`">
+                                <div class="p-2.5 rounded-xl w-fit mb-4" :class="`bg-${persona.color}-500/10 text-${persona.color}-500`">
+                                    <UIcon :name="persona.icon" class="size-6 shrink-0 flex" />
                                 </div>
-                                <h3 class="font-bold text-base text-neutral-900 dark:text-white mb-2">Employees</h3>
+                                <h3 class="font-bold text-base text-neutral-900 dark:text-white mb-2">{{ persona.role }}</h3>
                                 <ul class="text-sm text-neutral-500 dark:text-neutral-400 space-y-1.5 list-disc pl-4 mb-4">
-                                    <li>Apply for loans & check eligibility</li>
-                                    <li>Monitor active amortization</li>
-                                    <li>Download payment statements</li>
+                                    <li v-for="(task, tIdx) in persona.tasks" :key="tIdx">{{ task }}</li>
                                 </ul>
-                                <UBadge color="blue" variant="subtle" size="sm" label="Self-Service" />
-                            </UCard>
-
-                            <!-- HR -->
-                            <UCard variant="subtle" class="hover:border-emerald-500/30 transition-colors">
-                                <div class="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 w-fit mb-4">
-                                    <UIcon name="i-lucide-settings" class="size-6 shrink-0 flex" />
-                                </div>
-                                <h3 class="font-bold text-base text-neutral-900 dark:text-white mb-2">HR Administrators</h3>
-                                <ul class="text-sm text-neutral-500 dark:text-neutral-400 space-y-1.5 list-disc pl-4 mb-4">
-                                    <li>Configure loan programs & policies</li>
-                                    <li>Manage employee profiles</li>
-                                    <li>Oversee approval workflows</li>
-                                </ul>
-                                <UBadge color="emerald" variant="subtle" size="sm" label="Policy Owner" />
-                            </UCard>
-
-                            <!-- Payroll -->
-                            <UCard variant="subtle" class="hover:border-orange-500/30 transition-colors">
-                                <div class="p-2.5 rounded-xl bg-orange-500/10 text-orange-500 w-fit mb-4">
-                                    <UIcon name="i-lucide-wallet" class="size-6 shrink-0 flex" />
-                                </div>
-                                <h3 class="font-bold text-base text-neutral-900 dark:text-white mb-2">Payroll Officers</h3>
-                                <ul class="text-sm text-neutral-500 dark:text-neutral-400 space-y-1.5 list-disc pl-4 mb-4">
-                                    <li>Trigger deduction cycles</li>
-                                    <li>Manage hold/skip requests</li>
-                                    <li>Post payments to pay runs</li>
-                                </ul>
-                                <UBadge color="orange" variant="subtle" size="sm" label="Executioner" />
-                            </UCard>
-
-                            <!-- Finance -->
-                            <UCard variant="subtle" class="hover:border-purple-500/30 transition-colors">
-                                <div class="p-2.5 rounded-xl bg-purple-500/10 text-purple-500 w-fit mb-4">
-                                    <UIcon name="i-lucide-activity" class="size-6 shrink-0 flex" />
-                                </div>
-                                <h3 class="font-bold text-base text-neutral-900 dark:text-white mb-2">Finance Team</h3>
-                                <ul class="text-sm text-neutral-500 dark:text-neutral-400 space-y-1.5 list-disc pl-4 mb-4">
-                                    <li>Audit balance sheets</li>
-                                    <li>Release disbursal funds</li>
-                                    <li>Generate ledger reports</li>
-                                </ul>
-                                <UBadge color="purple" variant="subtle" size="sm" label="Auditor" />
-                            </UCard>
-
-                            <!-- Approvers -->
-                            <UCard variant="subtle" class="hover:border-pink-500/30 transition-colors">
-                                <div class="p-2.5 rounded-xl bg-pink-500/10 text-pink-500 w-fit mb-4">
-                                    <UIcon name="i-lucide-check-square" class="size-6 shrink-0 flex" />
-                                </div>
-                                <h3 class="font-bold text-base text-neutral-900 dark:text-white mb-2">Approvers (Supervisors)</h3>
-                                <ul class="text-sm text-neutral-500 dark:text-neutral-400 space-y-1.5 list-disc pl-4 mb-4">
-                                    <li>Review request justifications</li>
-                                    <li>Approve/reject entries</li>
-                                    <li>Track team requests</li>
-                                </ul>
-                                <UBadge color="pink" variant="subtle" size="sm" label="Gatekeeper" />
+                                <UBadge :color="persona.color" variant="subtle" size="sm" :label="persona.label" />
                             </UCard>
                         </div>
                     </div>
@@ -364,15 +411,18 @@ const modulesData = [
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <UCard v-for="mod in modulesData" :key="mod.id" variant="subtle" :ui="{ body: 'flex flex-col h-full gap-4 relative overflow-hidden' }" class="group hover:-translate-y-1 transition-transform">
                             <!-- Background color glow -->
-                            <div class="absolute -top-6 -right-6 size-24 rounded-full opacity-10 group-hover:opacity-20 transition-opacity blur-xl" :class="`bg-${mod.color}-500`" />
+                            <div class="absolute -top-24 -right-24 size-60 rounded-full opacity-10 group-hover:opacity-20 transition-opacity blur-3xl" :class="`bg-${mod.color}-500`" />
                             
                             <!-- Header -->
                             <div class="flex items-start gap-3">
                                 <div class="p-2 rounded-xl shrink-0" :class="`bg-${mod.color}-500/10 text-${mod.color}-500`">
                                     <UIcon :name="mod.icon" class="size-6 shrink-0 flex" />
                                 </div>
-                                <h3 class="font-bold text-lg text-neutral-900 dark:text-white mt-1 group-hover:text-primary transition-colors">
+                                <!-- <h3 class="font-bold text-lg text-neutral-900 dark:text-white mt-1 group-hover:text-primary transition-colors">
                                     {{ mod.id }}. {{ mod.title }}
+                                </h3> -->
+                                <h3 class="font-bold text-lg mt-1 transition-colors" :class="`group-hover:text-${mod.color}-500`">
+                                    {{ mod.title }}
                                 </h3>
                             </div>
                             
@@ -421,7 +471,7 @@ const modulesData = [
 
                                 <div v-if="mod.channels" class="space-y-2">
                                     <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">Available Outlets</span>
-                                    <div v-for="ch in mod.channels" :key="ch.name" class="flex items-start gap-2 bg-white dark:bg-neutral-900 p-2 rounded-lg border border-default shadow-sm">
+                                    <div v-for="ch in mod.channels" :key="ch.name" class="flex flex-col gap-2 bg-white dark:bg-neutral-900 p-2 rounded-lg border border-default shadow-sm">
                                         <div class="text-[11px] font-bold text-neutral-800 dark:text-neutral-200 shrink-0">{{ ch.name }}:</div>
                                         <div class="text-[11px] text-neutral-500 dark:text-neutral-400">{{ ch.desc }}</div>
                                     </div>
@@ -441,15 +491,132 @@ const modulesData = [
 
             <!-- FLOWS & INTEGRATIONS -->
             <template #workflows>
-                <div class="space-y-6 animate-fade-in w-full">
-                    <UAlert title="Work in Progress" description="This section is currently being constructed." icon="i-lucide-hammer" color="warning" variant="subtle" />
-                </div>
+                <div class="space-y-12 animate-fade-in w-full">
+                    
+                  <div class="space-y-6">
+                    <!-- Interactive Employee Journey -->
+                      <div class="flex items-center gap-3 border-b border-neutral-200 dark:border-neutral-800 pb-4">
+                        <div class="size-12 rounded-2xl flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 text-primary">
+                            <UIcon name="i-lucide-activity" class="size-6 text-primary" />
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-neutral-900 dark:text-white">End-to-End Employee Journey</h2>
+                            <p class="text-sm text-neutral-500">How an employee moves through the lifecycle of a loan program.</p>
+                        </div>
+                      </div>
+                        <!-- Vertical Timeline Layout -->
+                        <div class="relative pl-10 space-y-5 before:absolute before:left-[15px] before:top-6 before:bottom-16 before:w-[2px] before:bg-gradient-to-b before:from-primary-500/60 before:via-primary-300/40 before:to-primary-500/10 before:rounded-full">
+                            <div v-for="(step, sIdx) in employeeJourney" :key="sIdx" class="relative group">
+                                <!-- Outer glow ring -->
+                                <div class="absolute left-[-40px] top-[17px] size-8 rounded-full bg-primary-500/10 group-hover:bg-primary-500/20 group-hover:scale-125 transition-all duration-300" />
+                                <!-- Indicator Bubble -->
+                                <span class="absolute left-[-35px] top-[22px] size-[22px] rounded-full bg-gradient-to-br from-primary-400 to-primary-600 text-white text-[10px] font-bold flex items-center justify-center shadow-md shadow-primary-500/30 group-hover:shadow-lg group-hover:shadow-primary-500/50 transition-all duration-300 ring-2 ring-white dark:ring-neutral-800 z-10">
+                                    {{ sIdx + 1 }}
+                                </span>
+                                <UCard variant="subtle" class="w-full group-hover:border-primary-500/30 group-hover:shadow-md group-hover:shadow-primary-500/5 transition-all duration-300">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <h3 class="font-bold group-hover:text-primary transition-colors duration-200">{{ step.title }}</h3>
+                                        <UBadge :label="`Step ${sIdx + 1}`" variant="soft" class="opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                                    </div>
+                                    <p class="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">{{ step.desc }}</p>
+                                </UCard>
+                            </div>
+                        </div>
+                  </div>
+
+                  <div class="space-y-6">
+                    <!-- Integration Matrix -->
+                        <div class="border-b border-neutral-200 dark:border-neutral-800 pb-4">
+                            <h2 class="text-2xl font-bold text-neutral-900 dark:text-white flex items-center gap-3">
+                                <div class="size-12 rounded-2xl flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 text-primary">
+                                    <UIcon name="i-lucide-git-commit" class="size-6 text-primary" />
+                                </div>
+                                <div>
+                                    <div>HRIS Integration Ecosystem</div>
+                                    <div class="text-sm text-neutral-500 font-normal">Secure channels linking the loan processor with surrounding HR software.</div>
+                                </div>
+                            </h2>
+                        </div>
+
+                        <UTable :data="integrations" :columns="integrationColumns" class="w-full ring ring-default rounded-xl shadow-sm overflow-hidden">
+                            <template #name-cell="{ row }">
+                                <span class="font-bold text-default whitespace-nowrap">{{ row.original.name }}</span>
+                            </template>
+                            <template #key-cell="{ row }">
+                                <UBadge variant="soft" class="font-mono whitespace-nowrap">{{ row.original.key }}</UBadge>
+                            </template>
+                            <template #action-cell="{ row }">
+                                <div class="leading-relaxed text-xs whitespace-normal break-words">
+                                    {{ row.original.action }}
+                                </div>
+                            </template>
+                        </UTable>
+                      </div>
+                  </div>
             </template>
 
             <!-- ARCHITECTURE & DATA -->
             <template #technical>
-                <div class="space-y-6 animate-fade-in w-full">
-                    <UAlert title="Work in Progress" description="This section is currently being constructed." icon="i-lucide-hammer" color="warning" variant="subtle" />
+                <div class="space-y-12 animate-fade-in w-full">
+                    
+                    <!-- System Architecture Stack -->
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 border-b border-neutral-200 dark:border-neutral-800 pb-4">
+                            <div class="size-12 rounded-2xl flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 text-primary">
+                                <UIcon name="i-lucide-layers" class="size-6 text-primary" />
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-neutral-900 dark:text-white">System Architecture Stack</h2>
+                                <p class="text-sm text-neutral-500">The 4-tier design pattern separating UI concerns from core business logic.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-4">
+                            <UCard v-for="(layer, lIdx) in architectureLayers" :key="lIdx" variant="subtle" class="group transition-transform duration-300 shadow-sm relative overflow-hidden">
+                                <div class="flex items-center gap-4">
+                                    <div class="p-3 rounded-xl bg-gradient-to-b" :class="`from-${layer.color}-400 to-${layer.color}-600`">
+                                        <UIcon :name="layer.icon" class="size-6 shrink-0 flex text-white" />
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="font-bold text-lg">{{ layer.name }}</h3>
+                                        <p class="text-sm text-muted">{{ layer.desc }}</p>
+                                    </div>
+                                </div>
+                            </UCard>
+                        </div>
+                    </div>
+
+                    <!-- Core Data Entities -->
+                    <div class="space-y-6">
+                        <div class="border-b border-neutral-200 dark:border-neutral-800 pb-4">
+                            <h2 class="text-2xl font-bold text-neutral-900 dark:text-white flex items-center gap-3">
+                                <div class="size-12 rounded-2xl flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 text-primary">
+                                    <UIcon name="i-lucide-database" class="size-6 text-primary" />
+                                </div>
+                                <div>
+                                    <div>Core Data Entities</div>
+                                    <div class="text-sm text-neutral-500 font-normal">The relational structure powering the internal state machine.</div>
+                                </div>
+                            </h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          <UCard v-for="model in dataModels" :key="model.entity" :ui="{ root: 'flex flex-col', header: 'bg-muted flex items-center justify-between w-full', body: 'flex-1', footer: 'bg-muted font-mono text-center text-xs' }" class="shadow-sm">
+                            <template #header>
+                              <span class="font-mono font-bold text-sm text-neutral-900 dark:text-white group-hover:text-primary transition-colors">{{ model.entity }}</span>
+                                    <UIcon name="i-lucide-braces" class="text-neutral-400 size-4" />
+                            </template>
+                                    <span class="text-xs font-dimmed uppercase tracking-wider block mb-2">Schema Fields</span>
+                                    <div class="flex flex-wrap gap-1.5 mb-4">
+                                      <UBadge v-for="field in model.fields" :key="field" variant="subtle" color="neutral" class="font-mono">{{ field }}</UBadge>
+                                    </div>
+                              <template #footer>
+                                {{ model.relation }}
+                              </template>
+                          </UCard>
+                        </div>
+                    </div>
+
                 </div>
             </template>
         </UTabs>

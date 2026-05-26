@@ -49,12 +49,13 @@ const statusData = computed(() => {
 
 // Timeline Chart (Mocked trend for now)
 const timelineData = computed(() => {
+    const isReset = totalLoans.value === 0
     return {
         labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
         datasets: [
             lineDataset({
                 label: 'Applications Received',
-                data: [12, 19, 15, totalLoans.value],
+                data: isReset ? [0, 0, 0, 0] : [12, 19, 15, totalLoans.value],
                 borderColor: palette.blue.solid,
                 backgroundColor: palette.blue.soft
             })

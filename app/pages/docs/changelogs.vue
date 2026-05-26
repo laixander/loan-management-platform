@@ -33,6 +33,20 @@ interface ChangelogEntry {
 const changelogs: ChangelogEntry[] = [
     {
         date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+        version: 'v0.1.3',
+        title: 'Documentation Enhancements & UI Polish',
+        description: 'Finalized technical documentation views, optimized component structures, and resolved various UI state bugs across reports and presentation modes.',
+        changes: [
+            { type: 'feature', text: 'Completed the Architecture & Data tab in Documentation, mapping actual TypeScript domain models (User, LoanApplication, RepaymentSchedule) directly to the UI.' },
+            { type: 'refactor', text: 'Refactored Primary User Personas in Documentation to use a clean, data-driven array structure.' },
+            { type: 'feature', text: 'Implemented an animated, auto-hiding top navigation bar in Presentation mode for a cleaner full-screen experience.' },
+            { type: 'fix', text: 'Resolved table layout overflow issues in the Integrations matrix by overriding Nuxt UI whitespace rules.' },
+            { type: 'fix', text: 'Fixed the Application Trends chart in the Reports module to accurately flatten out when global data is reset.' },
+            { type: 'fix', text: 'Corrected z-index layering in Presentation mode to ensure the Color Mode toggle remains fully interactive.' }
+        ]
+    },
+    {
+        date: 'May 25, 2026',
         version: 'v0.1.2',
         title: 'Centralized Logging & Semantic Event Tracking',
         description: 'Refactored logging mechanism to use a domain-specific useAppLogger wrapper, standardizing telemetry and cleaning up view files.',
