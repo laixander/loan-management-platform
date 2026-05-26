@@ -1,8 +1,26 @@
 export default defineAppConfig({
   ui: {
     colors: {
-      primary: 'green',
-      neutral: 'slate'
+      primary: 'emerald',
+      neutral: 'mist',
+      // Full Tailwind palette
+      red: 'red',
+      orange: 'orange',
+      amber: 'amber',
+      yellow: 'yellow',
+      lime: 'lime',
+      green: 'green',
+      emerald: 'emerald',
+      teal: 'teal',
+      cyan: 'cyan',
+      sky: 'sky',
+      blue: 'blue',
+      indigo: 'indigo',
+      violet: 'violet',
+      purple: 'purple',
+      fuchsia: 'fuchsia',
+      pink: 'pink',
+      rose: 'rose',
     },
     pageCard: {
       slots: {

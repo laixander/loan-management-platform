@@ -95,6 +95,34 @@ const items = computed<NavigationMenuItem[]>(() => {
                     to: '/my-loans'
                 }
             ]
+        }] : []),
+        ...(canSee(['Supervisor', 'HR', 'Finance', 'Admin']) ? [{
+            label: 'Admin & Reports',
+            icon: 'i-lucide-shield',
+            defaultOpen: true,
+            type: 'trigger',
+            children: [
+                ...(canSee(['Supervisor', 'HR', 'Finance', 'Admin']) ? [{
+                    label: 'Reports & Analytics',
+                    icon: 'i-lucide-bar-chart-3',
+                    to: '/reports'
+                }] : []),
+                ...(canSee(['HR', 'Admin']) ? [{
+                    label: 'Employee Directory',
+                    icon: 'i-lucide-users',
+                    to: '/employees'
+                }] : []),
+                ...(canSee(['HR', 'Admin']) ? [{
+                    label: 'Audit Logs',
+                    icon: 'i-lucide-activity',
+                    to: '/audit-logs'
+                }] : []),
+                ...(canSee(['Admin']) ? [{
+                    label: 'System Settings',
+                    icon: 'i-lucide-settings',
+                    to: '/settings'
+                }] : [])
+            ]
         }] : [])
     ]
 

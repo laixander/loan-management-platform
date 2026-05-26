@@ -50,9 +50,9 @@ const items = computed(() => [
     // Navigation group
     [
         {
-            label: 'Landing Page',
-            icon: 'i-lucide-home',
-            to: '/docs/sample'
+            label: 'Presentation',
+            icon: 'i-lucide-airplay',
+            to: '/docs/presentation'
         },
         {
             label: 'Documentation',
@@ -62,23 +62,23 @@ const items = computed(() => [
         {
             label: 'User Manual',
             icon: 'i-lucide-book',
-            to: ''
+            to: '/docs/user-manual'
         },
-        {
-            label: 'Roadmap',
-            icon: 'i-lucide-map',
-            to: '/docs/roadmap'
-        },
+        // {
+        //     label: 'Roadmap',
+        //     icon: 'i-lucide-map',
+        //     to: '/docs/roadmap'
+        // },
         {
             label: 'Changelog',
             icon: 'i-lucide-file-text',
             to: '/docs/changelogs'
         },
-        {
-            label: 'Agent Kit',
-            icon: 'i-lucide-wand',
-            to: '/agent/ai-rules'
-        }
+        // {
+        //     label: 'Agent Kit',
+        //     icon: 'i-lucide-wand',
+        //     to: '/agent/ai-rules'
+        // }
     ],
     // Seed group
     [

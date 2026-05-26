@@ -1,41 +1,35 @@
 <script setup lang="ts">
-// ============================================================================
-// Imports
-// ============================================================================
 import { reactive, watch, useTemplateRef } from 'vue'
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { User } from '~/types'
+import type { User, SystemRole } from '~/types'
 
-// ============================================================================
-// Component Definition
-// ============================================================================
 interface Props {
     title?: string
     user?: User
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    title: 'User Details'
+    title: 'Employee Details'
 })
 
 const emit = defineEmits<{
-    (e: 'submit', user: { name: string; email: string; role: string; status: 'Active' | 'Inactive' }): void
+    (e: 'submit', user: Omit<User, 'id'>): void
     (e: 'cancel'): void
 }>()
 
-// ============================================================================
-// State
-// ============================================================================
 const isOpen = defineModel<boolean>('open', { default: false })
-const roles = ['Admin', 'Editor', 'Viewer']
 const formRef = useTemplateRef('form')
+
+const roleOptions: SystemRole[] = ['Employee', 'Supervisor', 'HR', 'Finance', 'Payroll', 'Admin']
 
 const schema = z.object({
     name: z.string({ message: 'Name is required' }).min(1, 'Name is required'),
-    email: z.string({ message: 'Email is required' }).email('Must be a valid email address'),
-    role: z.string({ message: 'Role is required' }),
-    status: z.enum(['Active', 'Inactive'], { message: 'Status must be Active or Inactive' })
+    email: z.string().email('Invalid email address'),
+    role: z.enum(['Employee', 'Supervisor', 'HR', 'Finance', 'Payroll', 'Admin'], { message: 'Required' }),
+    baseSalary: z.number().min(0, 'Must be positive'),
+    hireDate: z.string().min(1, 'Hire date is required'),
+    status: z.enum(['Active', 'Inactive'])
 })
 
 type Schema = z.output<typeof schema>
@@ -43,89 +37,100 @@ type Schema = z.output<typeof schema>
 const form = reactive({
     name: props.user?.name || '',
     email: props.user?.email || '',
-    role: props.user?.role || 'Viewer',
-    status: props.user?.status || 'Active' as const
+    role: (props.user?.role as SystemRole) || 'Employee',
+    baseSalary: props.user?.baseSalary || 30000,
+    hireDate: props.user?.hireDate || new Date().toISOString().split('T')[0],
+    status: props.user?.status || 'Active'
 })
 
-// Sync form with props when user changes
 watch(() => props.user, (newVal) => {
     if (newVal) {
         form.name = newVal.name
         form.email = newVal.email
-        form.role = newVal.role
+        form.role = newVal.role as SystemRole
+        form.baseSalary = newVal.baseSalary
+        form.hireDate = newVal.hireDate.split('T')[0]! // Simple date format for input type="date"
         form.status = newVal.status
     } else {
         resetForm()
     }
 }, { deep: true, immediate: true })
 
-// ============================================================================
-// Methods
-// ============================================================================
-
-/**
- * Handle form submission
- */
 function onSubmit(event: FormSubmitEvent<Schema>) {
-    emit('submit', { ...event.data })
+    emit('submit', { 
+        ...event.data,
+        // Add time back to hireDate if needed, or leave as simple date
+        hireDate: event.data.hireDate.includes('T') ? event.data.hireDate : `${event.data.hireDate}T00:00:00Z`
+    })
     resetForm()
     isOpen.value = false
 }
 
-/**
- * Handle modal cancellation
- */
 function onCancel() {
     resetForm()
     isOpen.value = false
     emit('cancel')
 }
 
-/**
- * Reset form fields to default state
- */
 function resetForm() {
     form.name = ''
     form.email = ''
-    form.role = 'Viewer'
+    form.role = 'Employee'
+    form.baseSalary = 30000
+    form.hireDate = new Date().toISOString().split('T')[0]!
     form.status = 'Active'
     formRef.value?.clear()
 }
 </script>
 
 <template>
-    <UModal v-model:open="isOpen" :ui="{ content: 'w-full sm:max-w-md' }">
+    <UModal v-model:open="isOpen" :ui="{ content: 'w-full sm:max-w-xl' }">
         <template #content="{ close }">
             <div class="flex flex-col gap-6 p-4 sm:p-6">
                 <!-- Header -->
                 <div class="flex flex-col gap-1">
                     <h3 class="text-lg font-semibold">{{ title }}</h3>
-                    <p class="text-muted text-sm">{{ user ? 'Update the details for this user.' : 'Fill in the details for the new user.' }}</p>
+                    <p class="text-muted text-sm">{{ user ? 'Update employee profile and roles.' : 'Add a new employee to the directory.' }}</p>
                 </div>
 
                 <!-- Form Content -->
                 <UForm ref="form" :state="form" :schema="schema" class="flex flex-col gap-4" @submit="onSubmit">
-                    <UFormField label="Name" name="name">
-                        <UInput v-model="form.name" placeholder="John Doe" icon="i-lucide-user" class="w-full" />
-                    </UFormField>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <UFormField label="Full Name" name="name">
+                            <UInput v-model="form.name" placeholder="John Doe" icon="i-lucide-user" class="w-full" />
+                        </UFormField>
+                        
+                        <UFormField label="Email" name="email">
+                            <UInput v-model="form.email" type="email" placeholder="john@example.com" icon="i-lucide-mail" class="w-full" />
+                        </UFormField>
+                    </div>
 
-                    <UFormField label="Email" name="email">
-                        <UInput v-model="form.email" type="email" placeholder="john@example.com" icon="i-lucide-mail" class="w-full" />
-                    </UFormField>
+                    <div class="grid grid-cols-2 gap-4">
+                        <UFormField label="System Role" name="role">
+                            <USelect v-model="form.role" :items="roleOptions" class="w-full" />
+                        </UFormField>
+                        
+                        <UFormField label="Status" name="status">
+                            <USelect v-model="form.status" :items="['Active', 'Inactive']" class="w-full" />
+                        </UFormField>
+                    </div>
 
-                    <UFormField label="Role" name="role">
-                        <USelect v-model="form.role" :items="roles" icon="i-lucide-shield" class="w-full" />
-                    </UFormField>
-
-                    <UFormField label="Status" name="status">
-                        <USelect v-model="form.status" :items="['Active', 'Inactive']" icon="i-lucide-activity" class="w-full" />
-                    </UFormField>
+                    <div class="grid grid-cols-2 gap-4">
+                        <UFormField label="Base Salary (₱)" name="baseSalary">
+                            <UInput v-model.number="form.baseSalary" type="number" icon="i-lucide-philippine-peso" class="w-full" />
+                        </UFormField>
+                        
+                        <UFormField label="Hire Date" name="hireDate">
+                            <UInput v-model="form.hireDate" type="date" icon="i-lucide-calendar" class="w-full" />
+                        </UFormField>
+                    </div>
 
                     <!-- Actions -->
                     <div class="flex justify-end gap-2 pt-2">
                         <UButton label="Cancel" color="neutral" variant="ghost" @click="onCancel" />
-                        <UButton type="submit" :label="user ? 'Save Changes' : 'Add User'" color="primary" 
-                            :icon="user ? 'i-lucide-save' : 'i-lucide-user-plus'" />
+                        <UButton type="submit" :label="user ? 'Save Changes' : 'Add Employee'" color="primary" 
+                            :icon="user ? 'i-lucide-save' : 'i-lucide-plus'" />
                     </div>
                 </UForm>
             </div>
