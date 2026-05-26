@@ -129,10 +129,19 @@ function processCycle() {
     toast.success('Cycle Processed', `Successfully processed ₱${totalScheduledAmount.value.toLocaleString()} in deductions.`)
 }
 
+const authStore = useAuthStore()
+const isAuthorized = computed(() => ['HR', 'Finance', 'Admin'].includes(authStore.currentRole ?? ''))
+
 </script>
 
 <template>
-    <div class="p-6 max-w-7xl mx-auto w-full h-full space-y-6">
+    <div v-if="!isAuthorized" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
+        <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
+        <h2 class="text-2xl font-bold">Authorized Personnel Only</h2>
+        <p class="text-neutral-500">You need HR, Finance, or Admin privileges to view payroll deductions.</p>
+    </div>
+
+    <div v-else class="p-6 max-w-7xl mx-auto w-full h-full space-y-6">
         
         <!-- Header Controls -->
         <div class="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
