@@ -20,10 +20,10 @@ definePageMeta({
     title: 'Repayment Tracker',
     description: 'Monitor all financial transactions across active loan applications. This is an append-only ledger for data integrity.',
     isTable: true,
-    headerActions: [
-        { label: 'Activity Logs', icon: 'i-lucide-scroll-text', event: 'viewLogs', variant: 'ghost' },
-        { label: 'Record Transaction', icon: 'i-lucide-plus', event: 'addTransaction', color: 'primary' }
-    ]
+    // headerActions: [
+    //     { label: 'Activity Logs', icon: 'i-lucide-scroll-text', event: 'viewLogs', variant: 'ghost' },
+    //     { label: 'Record Transaction', icon: 'i-lucide-plus', event: 'addTransaction', color: 'primary' }
+    // ]
 })
 
 // ============================================================================
@@ -75,11 +75,11 @@ async function handleAddTransaction(form: any) {
 function getTypeColor(type: string) {
     switch (type) {
         case 'Disbursement': return 'primary'
-        case 'Repayment': return 'success'
+        case 'Repayment': return 'cyan'
         case 'Penalty': return 'error'
         case 'Adjustment': return 'warning'
         case 'Waiver': return 'neutral'
-        case 'Settlement': return 'success'
+        case 'Settlement': return 'info'
         default: return 'neutral'
     }
 }
@@ -145,28 +145,51 @@ const columns: TableColumn<LoanTransaction>[] = [
 const table = useTemplateRef('table')
 const globalFilter = ref('')
 const columnVisibility = ref({})
+
+const viewMode = ref<'list' | 'card'>('list')
 </script>
 
 <template>
-    <div v-if="!isAuthorized" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
-        <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
-        <h2 class="text-2xl font-bold">Finance / Admin Access Required</h2>
-    </div>
+    <AuthGate v-if="!isAuthorized" title="Finance / Admin Access Required" description="You need Finance or Admin privileges to process loan repayments." icon="i-lucide-lock" />
 
     <template v-else>
         <UPageCard title="Repayment Tracker (Ledger)"
         description="Monitor all financial transactions across active loan applications. This is an append-only ledger for data integrity."
         variant="naked" orientation="horizontal" class="border-b border-default rounded-none p-4 sm:p-6">
-        <div class="flex justify-end gap-2 flex-1">
-            <TableGlobalFilter v-model="globalFilter" />
-            <TableColumnToggle :table="table" />
-        </div>
-    </UPageCard>
+            <div class="flex flex-1 justify-end items-center gap-2">
+                <template v-if="viewMode === 'list'">
+                    <TableGlobalFilter v-model="globalFilter" />
+                    <TableColumnToggle :table="table" />
+                </template>
+                <UTabs :items="[{ icon: 'i-lucide-grid-3x3', value: 'card' }, { icon: 'i-lucide-list', value: 'list' }]"
+                v-model="viewMode" :content="false" size="xs" />
+            </div>
+        </UPageCard>
 
-    <UTable sticky ref="table" :data="repaymentStore.transactions" :columns="columns" :loading="pending"
-        v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">
-        <template #empty>
-            <Empty :loading="pending" title="No Transactions"
+        <ClientOnly>
+            <Teleport to="#header-actions-teleport">
+                <UButton label="Activity Logs" icon="i-lucide-activity" variant="ghost" color="neutral" @click="isDrawerOpen = true" />
+                <UButton label="Record Transaction" icon="i-lucide-plus" @click="events.emit('addTransaction')" />
+            </Teleport>
+        </ClientOnly>
+
+        <UTable v-if="viewMode === 'list'" sticky ref="table" :data="repaymentStore.transactions" :columns="columns" :loading="pending"
+            v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">
+            <template #empty>
+                <Empty :loading="pending" title="No Transactions"
+                    description="There are currently no ledger entries or repayments recorded."
+                    icon="i-lucide-activity" loading-title="Loading Ledger"
+                    loading-description="Please wait while we sync the transaction history.">
+                    <template #action>
+                        <UButton label="Record Transaction" icon="i-lucide-plus" color="primary" size="lg"
+                            @click="events.emit('addTransaction')" />
+                    </template>
+                </Empty>
+            </template>
+        </UTable>
+
+        <div v-else class="flex-1 overflow-y-auto scrollbar p-4 sm:p-6">
+            <Empty v-if="repaymentStore.transactions.length === 0" :loading="pending" title="No Transactions"
                 description="There are currently no ledger entries or repayments recorded."
                 icon="i-lucide-activity" loading-title="Loading Ledger"
                 loading-description="Please wait while we sync the transaction history.">
@@ -175,8 +198,42 @@ const columnVisibility = ref({})
                         @click="events.emit('addTransaction')" />
                 </template>
             </Empty>
-        </template>
-    </UTable>
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <UCard v-for="tx in repaymentStore.transactions" :key="tx.id" variant="subtle"
+                    class="hover:ring-2 hover:ring-primary transition-all duration-200 shadow-sm flex flex-col h-full">
+                    <template #header>
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold font-mono">{{ tx.loanRef }}</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ tx.description || 'No remarks' }}</p>
+                            </div>
+                        </div>
+                    </template>
+                    <div class="flex flex-col flex-1 h-full justify-end">
+                        <div class="*:py-2 *:first:pt-0 *:last:pb-0 *:flex *:items-center *:justify-between text-sm divide-y divide-default mt-auto">
+                            <div>
+                                <span class="text-muted">Transaction Type</span>
+                                <UBadge :label="tx.transactionType" :color="getTypeColor(tx.transactionType)" variant="subtle" size="sm" />
+                            </div>
+                            <div>
+                                <span class="text-muted">Amount</span>
+                                <span class="font-semibold" :class="['Repayment', 'Waiver', 'Settlement'].includes(tx.transactionType) ? 'text-success' : 'text-error'">
+                                    {{ ['Repayment', 'Waiver', 'Settlement'].includes(tx.transactionType) ? '-' : '+' }}₱{{ tx.amount.toLocaleString() }}
+                                </span>
+                            </div>
+                            <div>
+                                <span class="text-muted">Balance After</span>
+                                <span class="font-semibold">₱{{ tx.balanceAfter.toLocaleString() }}</span>
+                            </div>
+                            <div>
+                                <span class="text-muted">Transaction Date</span>
+                                <span class="font-semibold">{{ new Date(tx.transactionDate).toLocaleDateString() }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </UCard>
+            </div>
+        </div>
 
         <RepaymentModal v-model:open="isAddModalOpen" @submit="handleAddTransaction" />
 

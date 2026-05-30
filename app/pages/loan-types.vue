@@ -20,10 +20,10 @@ import ConfirmationModal from '~/components/ConfirmationModal.vue'
 definePageMeta({
     title: 'Loan Types',
     isTable: true,
-    headerActions: [
-        { label: 'Activity Logs', icon: 'i-lucide-scroll-text', event: 'viewLogs', variant: 'ghost' },
-        { label: 'Add Loan Type', icon: 'i-lucide-plus', event: 'addLoanType', color: 'primary' }
-    ]
+    // headerActions: [
+    //     { label: 'Activity Logs', icon: 'i-lucide-scroll-text', event: 'viewLogs', variant: 'ghost' },
+    //     { label: 'Add Loan Type', icon: 'i-lucide-plus', event: 'addLoanType', color: 'primary' }
+    // ]
 })
 
 // ============================================================================
@@ -207,29 +207,51 @@ const columns: TableColumn<LoanType>[] = [
 const table = useTemplateRef('table')
 const globalFilter = ref('')
 const columnVisibility = ref({})
+
+const viewMode = ref<'list' | 'card'>('list')
 </script>
 
 <template>
-    <div v-if="!isAuthorized" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
-        <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
-        <h2 class="text-2xl font-bold">HR / Admin Access Required</h2>
-    </div>
+    <AuthGate v-if="!isAuthorized" title="HR / Admin Access Required" description="You need HR or Admin privileges to manage loan configurations." icon="i-lucide-lock" />
 
     <template v-else>
-        
-    <UPageCard title="Loan Types Configuration"
-        description="Manage the different types of loans available to employees, including their terms and limits."
-        variant="naked" orientation="horizontal" class="border-b border-default rounded-none p-4 sm:p-6">
-        <div class="flex justify-end gap-2 flex-1">
-            <TableGlobalFilter v-model="globalFilter" />
-            <TableColumnToggle :table="table" />
-        </div>
-    </UPageCard>
+        <UPageCard title="Loan Types Configuration"
+            description="Manage the different types of loans available to employees, including their terms and limits."
+            variant="naked" orientation="horizontal" class="border-b border-default rounded-none p-4 sm:p-6">
+            <div class="flex flex-1 justify-end items-center gap-2">
+                <template v-if="viewMode === 'list'">
+                    <TableGlobalFilter v-model="globalFilter" />
+                    <TableColumnToggle :table="table" />
+                </template>
+                <UTabs :items="[{ icon: 'i-lucide-grid-3x3', value: 'card' }, { icon: 'i-lucide-list', value: 'list' }]"
+                v-model="viewMode" :content="false" size="xs" />
+            </div>
+        </UPageCard>
 
-    <UTable sticky ref="table" :data="loanStore.types" :columns="columns" :loading="pending"
-        v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">
-        <template #empty>
-            <Empty :loading="pending" title="No Loan Types"
+        <ClientOnly>
+            <Teleport to="#header-actions-teleport">
+                <UButton label="Activity Logs" icon="i-lucide-activity" variant="ghost" color="neutral" @click="isDrawerOpen = true" />
+                <UButton label="Add Loan Type" icon="i-lucide-plus" @click="events.emit('addLoanType')" />
+            </Teleport>
+        </ClientOnly>
+
+        <UTable v-if="viewMode === 'list'" sticky ref="table" :data="loanStore.types" :columns="columns" :loading="pending"
+            v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">
+            <template #empty>
+                <Empty :loading="pending" title="No Loan Types"
+                    description="There are no loan types configured. Add a new loan type to get started."
+                    icon="i-lucide-landmark" loading-title="Retrieving Loan Types"
+                    loading-description="Please wait while we load the configuration.">
+                    <template #action>
+                        <UButton label="Add Loan Type" icon="i-lucide-plus" color="primary" size="lg"
+                            @click="events.emit('addLoanType')" />
+                    </template>
+                </Empty>
+            </template>
+        </UTable>
+
+        <div v-else class="flex-1 overflow-y-auto scrollbar p-4 sm:p-6">
+            <Empty v-if="loanStore.types.length === 0" :loading="pending" title="No Loan Types"
                 description="There are no loan types configured. Add a new loan type to get started."
                 icon="i-lucide-landmark" loading-title="Retrieving Loan Types"
                 loading-description="Please wait while we load the configuration.">
@@ -238,8 +260,47 @@ const columnVisibility = ref({})
                         @click="events.emit('addLoanType')" />
                 </template>
             </Empty>
-        </template>
-    </UTable>
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <UCard v-for="value in loanStore.types" :key="value.id" variant="subtle"
+                    class="hover:ring-2 hover:ring-primary transition-all duration-200 shadow-sm flex flex-col h-full">
+                    <template #header>
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <!-- <p class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ value.id }}</p> -->
+                                <h3 class="text-lg font-bold">{{ value.name }}</h3>
+                                <p v-if="value.description" class="text-sm text-muted">{{ value.description }}</p>
+                            </div>
+                            <UDropdownMenu :items="[[
+                                { label: 'Edit', icon: 'i-lucide-edit', onSelect: () => handleEditLoanType(value) },
+                                { label: value.isActive ? 'Deactivate' : 'Activate', icon: value.isActive ? 'i-lucide-power-off' : 'i-lucide-power', onSelect: () => handleToggleStatus(value) }
+                            ], [
+                                { label: 'Delete', icon: 'i-lucide-trash', color: 'error', onSelect: () => handleDeleteLoanType(value) }
+                            ]]" :content="{ align: 'end' }" size="sm">
+                                <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" size="sm" />
+                            </UDropdownMenu>
+                        </div>
+                    </template>
+                    <div class="*:py-2 *:first:pt-0 *:last:pb-0 *:flex *:items-center *:justify-between text-sm divide-y divide-default">
+                        <div>
+                            <span class="text-muted">Status</span>
+                            <UBadge :label="value.isActive ? 'Active' : 'Inactive'" :color="value.isActive ? 'success' : 'neutral'" variant="subtle" size="sm" />
+                        </div>
+                        <div>
+                            <span class="text-muted">Max Amount</span>
+                            <span class="font-semibold">₱{{ value.maxAmount.toLocaleString() }}</span>
+                        </div>
+                        <div>
+                            <span class="text-muted">Interest Rate</span>
+                            <span class="font-semibold">{{ value.interestRate }}%</span>
+                        </div>
+                        <div>
+                            <span class="text-muted">Max Term</span>
+                            <span class="font-semibold">{{ value.maxRepaymentMonths }} mos</span>
+                        </div>
+                    </div>
+                </UCard>
+            </div>
+        </div>
 
         <LoanTypeModal v-model:open="isAddModalOpen" @submit="handleAddLoanType" />
 

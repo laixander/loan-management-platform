@@ -8,12 +8,11 @@ const { logs, clearLogs } = useLogger(props.namespace)
 </script>
 
 <template>
-    <UDrawer v-model:open="isOpen" direction="right" inset title="Application Logs"
-        description="View real-time application events and status." :ui="{ container: 'sm:py-6 sm:pr-8 scrollbar' }" class="min-w-md">
+    <UDrawer v-model:open="isOpen" direction="right" :ui="{ container: 'sm:py-6 sm:pr-8 scrollbar' }" class="min-w-md">
         <template #header>
             <div class="flex items-center justify-between w-full gap-4">
                 <div class="min-w-sm">
-                    <div class="text-lg font-semibold">Application Logs</div>
+                    <div class="text-lg font-semibold">Activity Logs</div>
                     <div class="text-sm text-muted">View real-time <span class="font-bold">{{ props.namespace.charAt(0).toUpperCase() + props.namespace.slice(1).replace(/[A-Z]/g, ' $&').trim() }}</span> events and status.</div>
                 </div>
                 <UButton label="Clear" icon="i-lucide-trash-2" color="error" variant="soft" size="sm"

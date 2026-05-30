@@ -23,12 +23,29 @@ useSeoMeta({
   ogImage: '',
   twitterCard: ''
 })
+
+// FAB demo (remove in production)
+const route = useRoute()
+const isDevMode = computed(() => {
+    if (import.meta.server) return false
+    if (route.query.nodev !== undefined) {
+        sessionStorage.removeItem('devMode')
+        return false
+    }
+    if (route.query.dev !== undefined) {
+        sessionStorage.setItem('devMode', '1')
+        return true
+    }
+    return sessionStorage.getItem('devMode') === '1'
+})
 </script>
 <template>
     <UApp>
         <NuxtLayout>
             <NuxtPage />
-            <DemoFab />
+            <ClientOnly>
+                <DemoFab v-if="isDevMode" />
+            </ClientOnly>
         </NuxtLayout>
     </UApp>
 </template>

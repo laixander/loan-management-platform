@@ -20,9 +20,9 @@ definePageMeta({
     title: 'Approval Queue',
     description: 'Review and process loan applications assigned to your role.',
     isTable: true,
-    headerActions: [
-        { label: 'Activity Logs', icon: 'i-lucide-scroll-text', event: 'viewLogs', variant: 'ghost' },
-    ]
+    // headerActions: [
+    //     { label: 'Activity Logs', icon: 'i-lucide-scroll-text', event: 'viewLogs', variant: 'ghost' },
+    // ]
 })
 
 // ============================================================================
@@ -152,20 +152,23 @@ const columnVisibility = ref({})
 </script>
 
 <template>
-    <div v-if="!isAuthorized" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
-        <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
-        <h2 class="text-2xl font-bold">Approver Access Required</h2>
-    </div>
+    <AuthGate v-if="!isAuthorized" title="Approver Access Required" description="You must be an assigned Approver to review pending loan applications." icon="i-lucide-lock" />
 
     <template v-else>
         <UPageCard title="Approval Queue"
         description="Review and process loan applications assigned to your role."
         variant="naked" orientation="horizontal" class="border-b border-default rounded-none p-4 sm:p-6">
-        <div class="flex justify-end gap-2 flex-1 items-center">
-            <TableGlobalFilter v-model="globalFilter" />
-            <TableColumnToggle :table="table" />
-        </div>
-    </UPageCard>
+            <div class="flex justify-end gap-2 flex-1 items-center">
+                <TableGlobalFilter v-model="globalFilter" />
+                <TableColumnToggle :table="table" />
+            </div>
+        </UPageCard>
+
+        <ClientOnly>
+            <Teleport to="#header-actions-teleport">
+                <UButton label="Activity Logs" icon="i-lucide-activity" variant="ghost" color="neutral" @click="isDrawerOpen = true" />
+            </Teleport>
+        </ClientOnly>
 
         <UTable sticky ref="table" :data="filteredQueue" :columns="columns" :loading="pending"
             v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">

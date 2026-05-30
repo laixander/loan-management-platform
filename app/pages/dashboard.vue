@@ -137,10 +137,7 @@ function getStatusColor(status: string): string {
 </script>
 
 <template>
-    <div v-if="!isAuthorized" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
-        <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
-        <h2 class="text-2xl font-bold">Admin / Manager Access Required</h2>
-    </div>
+    <AuthGate v-if="!isAuthorized" title="Admin / Manager Access Required" description="You need Manager or Admin privileges to view the management dashboard." icon="i-lucide-lock" />
 
     <template v-else>
         <UPageCard title="Dashboard" description="Key metrics and loan analytics overview." variant="naked"

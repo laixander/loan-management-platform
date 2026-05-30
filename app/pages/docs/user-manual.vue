@@ -39,10 +39,10 @@ const items = [
             <div class="absolute -top-18 right-4">
                 <UColorModeButton color="primary" />
             </div>
-            <UBadge label="Role-Based Instructions" icon="i-lucide-user" variant="subtle" color="primary" size="lg" class="rounded-full px-3 py-1.5 w-fit" />
+            <UBadge label="User Manual" icon="i-lucide-user" variant="subtle" color="primary" size="lg" class="rounded-full px-3 py-1.5 w-fit" />
             <div class="flex flex-col gap-3 mt-6">
                 <h1 class="text-3xl sm:text-5xl text-pretty font-bold text-highlighted">
-                    User <span class="text-primary-600 dark:text-primary-400">Manual</span>
+                    Role-Based <span class="text-primary-600 dark:text-primary-400">Instructions</span>
                 </h1>
                 <p class="text-lg text-pretty text-primary-600 dark:text-primary-700 font-light">
                     Comprehensive step-by-step instructions for utilizing the Loan Management Platform.
@@ -69,7 +69,7 @@ const items = [
 
     <!-- ── Manual Content ─────────────────────────────────────────────────── -->
     <UContainer class="py-12">
-        <UTabs :items="items" orientation="vertical" variant="link" class="w-full" :ui="{ root: 'items-start sm:gap-6 md:gap-12', list: 'gap-1' }">
+        <UTabs :items="items" orientation="vertical" variant="link" class="w-full" :ui="{ root: 'items-start sm:gap-6 md:gap-12', list: 'gap-1 sticky top-20 h-fit' }">
             
             <!-- EMPLOYEE -->
             <template #employee>

@@ -70,55 +70,52 @@ function handleExport() {
 </script>
 
 <template>
-    <div v-if="!isAuthorized" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
-        <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
-        <h2 class="text-2xl font-bold">Manager Access Required</h2>
-    </div>
+    <AuthGate v-if="!isAuthorized" title="Manager Access Required" description="You need Manager or Admin privileges to view system reports and analytics." icon="i-lucide-lock" />
 
-    <template v-else>
-        <div class="p-6 max-w-7xl mx-auto w-full h-full space-y-6">
-            <div class="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
-                <div>
-                    <h2 class="text-2xl font-bold tracking-tight">Reports & Analytics</h2>
-                    <p class="text-muted text-sm mt-1">Export financial data and monitor system KPIs.</p>
-                </div>
+    <UContainer v-else class="space-y-6">
+        <UPageCard title="Reports & Analytics" description="Export financial data and monitor system KPIs." variant="naked"
+        orientation="horizontal" class="rounded-none" />
+
+        <!-- Header Controls -->
+        <ClientOnly>
+            <Teleport to="#header-actions-teleport">
                 <UButton label="Export CSV" icon="i-lucide-download" color="primary" @click="handleExport" />
-            </div>
+            </Teleport>
+        </ClientOnly>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                <UCard variant="subtle" class="border border-gray-200 dark:border-gray-800">
-                    <p class="text-sm text-muted font-medium mb-1">Total Applications</p>
-                    <p class="text-3xl font-bold">{{ totalLoans }}</p>
-                </UCard>
-                <UCard variant="subtle" class="border border-success-200 dark:border-success-900 bg-success-50 dark:bg-success-950/20">
-                    <p class="text-sm text-success-700 dark:text-success-400 font-medium mb-1">Total Disbursed</p>
-                    <p class="text-3xl font-bold text-success-800 dark:text-success-300">₱{{ totalDisbursed.toLocaleString() }}</p>
-                </UCard>
-                <UCard variant="subtle" class="border border-warning-200 dark:border-warning-900 bg-warning-50 dark:bg-warning-950/20">
-                    <p class="text-sm text-warning-700 dark:text-warning-400 font-medium mb-1">Pending Amount Pipeline</p>
-                    <p class="text-3xl font-bold text-warning-800 dark:text-warning-300">₱{{ pendingAmount.toLocaleString() }}</p>
-                </UCard>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-                <UCard class="ring-0 border border-gray-200 dark:border-gray-800 shadow-none">
-                    <template #header>
-                        <h3 class="font-semibold">Application Trends</h3>
-                    </template>
-                    <div class="h-[300px]">
-                        <Line :data="timelineData" :options="defaultOptions" />
-                    </div>
-                </UCard>
-
-                <UCard class="ring-0 border border-gray-200 dark:border-gray-800 shadow-none">
-                    <template #header>
-                        <h3 class="font-semibold">Application Status Distribution</h3>
-                    </template>
-                    <div class="h-[300px]">
-                        <Doughnut :data="statusData" :options="doughnutOptions" />
-                    </div>
-                </UCard>
-            </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <UCard variant="subtle">
+                <p class="text-sm text-muted font-medium mb-1">Total Applications</p>
+                <p class="text-3xl font-bold">{{ totalLoans }}</p>
+            </UCard>
+            <UCard variant="subtle" class="ring-success-200 dark:ring-success-900 bg-success-50 dark:bg-success-950/20">
+                <p class="text-sm text-success-700 dark:text-success-400 font-medium mb-1">Total Disbursed</p>
+                <p class="text-3xl font-bold text-success-800 dark:text-success-300">₱{{ totalDisbursed.toLocaleString() }}</p>
+            </UCard>
+            <UCard variant="subtle" class="ring-warning-200 dark:ring-warning-900 bg-warning-50 dark:bg-warning-950/20">
+                <p class="text-sm text-warning-700 dark:text-warning-400 font-medium mb-1">Pending Amount Pipeline</p>
+                <p class="text-3xl font-bold text-warning-800 dark:text-warning-300">₱{{ pendingAmount.toLocaleString() }}</p>
+            </UCard>
         </div>
-    </template>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <UCard variant="subtle" class="shadow-sm">
+                <template #header>
+                    <h3 class="font-semibold">Application Trends</h3>
+                </template>
+                <div class="h-[300px]">
+                    <Line :data="timelineData" :options="defaultOptions" />
+                </div>
+            </UCard>
+
+            <UCard variant="subtle" class="shadow-sm">
+                <template #header>
+                    <h3 class="font-semibold">Application Status Distribution</h3>
+                </template>
+                <div class="h-[300px]">
+                    <Doughnut :data="statusData" :options="doughnutOptions" />
+                </div>
+            </UCard>
+        </div>
+    </UContainer>
 </template>

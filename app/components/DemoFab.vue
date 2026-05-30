@@ -3,8 +3,11 @@
 // Composables & State
 // ============================================================================
 const { seedAll, resetAll } = useSeeder()
+const userStore = useUserStore()
 const isLoading = ref(false)
 const toast = useAppToast()
+
+const isDataDeployed = computed(() => userStore.users && userStore.users.length > 0)
 
 // ============================================================================
 // Methods
@@ -46,63 +49,72 @@ const handleReset = async () => {
 // ============================================================================
 // Configuration
 // ============================================================================
-const items = computed(() => [
-    // Navigation group
-    [
-        {
-            label: 'App',
-            icon: 'i-lucide-blocks',
-            to: '/'
-        },
-        {
-            label: 'Presentation',
-            icon: 'i-lucide-airplay',
-            to: '/docs/presentation'
-        },
-        {
-            label: 'Documentation',
-            icon: 'i-lucide-book-open',
-            to: '/docs/documentation'
-        },
-        {
-            label: 'User Manual',
-            icon: 'i-lucide-book',
-            to: '/docs/user-manual'
-        },
-        // {
-        //     label: 'Roadmap',
-        //     icon: 'i-lucide-map',
-        //     to: '/docs/roadmap'
-        // },
-        {
-            label: 'Changelog',
-            icon: 'i-lucide-file-text',
-            to: '/docs/changelogs'
-        },
-        // {
-        //     label: 'Agent Kit',
-        //     icon: 'i-lucide-wand',
-        //     to: '/agent/ai-rules'
-        // }
-    ],
-    // Seed group
-    [
-        {
-            label: 'Deploy Demo Data',
-            icon: 'i-lucide-database-zap',
-            onSelect: handleSeed
-        }
-    ],
-    // Reset group
-    [
-        {
-            label: 'Reset System',
-            icon: 'i-lucide-trash-2',
-            class: 'text-red-500',
-            onSelect: handleReset
-        }
+const items = computed(() => {
+    const groups: any[][] = [
+        // Navigation group
+        [
+            {
+                label: 'App',
+                icon: 'i-lucide-blocks',
+                to: '/'
+            },
+            {
+                label: 'Presentation',
+                icon: 'i-lucide-airplay',
+                to: '/docs/presentation'
+            },
+            {
+                label: 'Documentation',
+                icon: 'i-lucide-book',
+                to: '/docs/documentation'
+            },
+            {
+                label: 'User Manual',
+                icon: 'i-lucide-user',
+                to: '/docs/user-manual'
+            },
+            {
+                label: 'Implementation',
+                icon: 'i-lucide-construction',
+                to: '/docs/implementation'
+            },
+            {
+                label: 'Changelog',
+                icon: 'i-lucide-file-text',
+                to: '/docs/changelogs'
+            },
+            {
+                label: 'Agent Kit',
+                icon: 'i-lucide-wand',
+                to: '/agent/ai-rules'
+            }
+        ]
     ]
-]) as any
+
+    if (isDataDeployed.value) {
+        // Reset group
+        groups.push([
+            {
+                label: 'Reset System',
+                icon: 'i-lucide-trash-2',
+                color: 'error',
+                onSelect: handleReset
+            }
+        ])
+    } else {
+        // Seed group
+        groups.push([
+            {
+                label: 'Deploy Demo Data',
+                icon: 'i-lucide-database-zap',
+                color: 'primary',
+                onSelect: handleSeed
+            }
+        ])
+    }
+
+    return groups
+}) as any
 
 // ============================================================================
 // Draggable Logic

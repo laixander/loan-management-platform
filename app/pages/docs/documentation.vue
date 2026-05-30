@@ -23,7 +23,8 @@ const items = [
     { slot: 'overview', label: 'Overview & Users', icon: 'i-lucide-book-open' },
     { slot: 'modules', label: 'Functional Modules', icon: 'i-lucide-layers' },
     { slot: 'workflows', label: 'Flows & Integrations', icon: 'i-lucide-git-commit' },
-    { slot: 'technical', label: 'Architecture & Data', icon: 'i-lucide-cpu' }
+    { slot: 'technical', label: 'Architecture & Data', icon: 'i-lucide-cpu' },
+    { slot: 'design', label: 'Design System', icon: 'i-lucide-palette' }
 ]
 
 const modulesData = [
@@ -300,7 +301,7 @@ const personas = [
 
     <!-- ── Manual Content ─────────────────────────────────────────────────── -->
     <UContainer class="py-12">
-        <UTabs :items="items" orientation="vertical" variant="link" class="w-full" :ui="{ root: 'items-start sm:gap-6 md:gap-12', list: 'gap-1' }">
+        <UTabs :items="items" orientation="vertical" variant="link" class="w-full" :ui="{ root: 'items-start sm:gap-6 md:gap-12', list: 'gap-1 sticky top-20 h-fit' }">
             
             <!-- OVERVIEW & USERS -->
             <template #overview>
@@ -617,6 +618,132 @@ const personas = [
                         </div>
                     </div>
 
+                </div>
+            </template>
+
+            <!-- DESIGN SYSTEM -->
+            <template #design>
+                <div class="space-y-12 animate-fade-in w-full">
+                    
+                    <!-- Colors -->
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 border-b border-neutral-200 dark:border-neutral-800 pb-4">
+                            <div class="size-12 rounded-2xl flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 text-primary">
+                                <UIcon name="i-lucide-palette" class="size-6 text-primary" />
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-neutral-900 dark:text-white">Color Palette</h2>
+                                <p class="text-sm text-neutral-500">Semantic colors used throughout the application.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <UCard variant="subtle" :ui="{ root: 'divide-y-0', header: 'p-0 sm:p-0' }" class="shadow-sm">
+                                <template #header>
+                                    <div class="h-20 bg-primary-500 w-full"></div>
+                                </template>
+                                <h3 class="font-bold">Primary</h3>
+                                <p class="text-xs text-muted mt-1">Main brand color, interactive elements, primary buttons.</p>
+                            </UCard>
+                            <UCard variant="subtle" :ui="{ root: 'divide-y-0', header: 'p-0 sm:p-0' }" class="shadow-sm">
+                                <template #header>
+                                    <div class="h-20 bg-success-500 w-full"></div>
+                                </template>
+                                <h3 class="font-bold">Success</h3>
+                                <p class="text-xs text-muted mt-1">Active states, approved loans, successful actions.</p>
+                            </UCard>
+                            <UCard variant="subtle" :ui="{ root: 'divide-y-0', header: 'p-0 sm:p-0' }" class="shadow-sm">
+                                <template #header>
+                                    <div class="h-20 bg-warning-500 w-full"></div>
+                                </template>
+                                <h3 class="font-bold">Warning</h3>
+                                <p class="text-xs text-muted mt-1">Pending states, alerts, required access warnings.</p>
+                            </UCard>
+                            <UCard variant="subtle" :ui="{ root: 'divide-y-0', header: 'p-0 sm:p-0' }" class="shadow-sm">
+                                <template #header>
+                                    <div class="h-20 bg-error-500 w-full"></div>
+                                </template>
+                                <h3 class="font-bold">Error</h3>
+                                <p class="text-xs text-muted mt-1">Rejected loans, destructive actions, critical errors.</p>
+                            </UCard>
+                        </div>
+                    </div>
+
+                    <!-- Typography -->
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 border-b border-neutral-200 dark:border-neutral-800 pb-4">
+                            <div class="size-12 rounded-2xl flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 text-primary">
+                                <UIcon name="i-lucide-type" class="size-6 text-primary" />
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-neutral-900 dark:text-white">Typography</h2>
+                                <p class="text-sm text-neutral-500">Fonts used for the user interface.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <UCard variant="subtle">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="font-bold">Geist Sans</h3>
+                                    <UBadge variant="subtle" color="neutral">Sans-serif</UBadge>
+                                </div>
+                                <p class="text-2xl font-sans text-neutral-900 dark:text-white mb-2">The quick brown fox jumps over the lazy dog</p>
+                                <p class="text-sm text-muted">Used for all general UI elements, headings, and paragraph text.</p>
+                            </UCard>
+                            <UCard variant="subtle">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="font-bold">Geist Mono</h3>
+                                    <UBadge variant="subtle" color="neutral">Monospace</UBadge>
+                                </div>
+                                <p class="text-lg font-mono text-neutral-900 dark:text-white mb-2">import { useLoanStore } from '~/stores'</p>
+                                <p class="text-sm text-muted">Used for code snippets, database IDs, and technical data.</p>
+                            </UCard>
+                        </div>
+                    </div>
+
+                    <!-- Components -->
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 border-b border-neutral-200 dark:border-neutral-800 pb-4">
+                            <div class="size-12 rounded-2xl flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 text-primary">
+                                <UIcon name="i-lucide-component" class="size-6 text-primary" />
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-neutral-900 dark:text-white">Core UI Components</h2>
+                                <p class="text-sm text-neutral-500">Powered by Nuxt UI v3.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <UCard variant="subtle">
+                                <h3 class="font-bold mb-4">Buttons (UButton)</h3>
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    <UButton color="primary">Primary</UButton>
+                                    <UButton color="neutral" variant="soft">Neutral</UButton>
+                                    <UButton color="error" variant="outline">Error</UButton>
+                                </div>
+                                <p class="text-xs text-muted mt-4">Used for primary actions, secondary actions, and destructive intents.</p>
+                            </UCard>
+
+                            <UCard variant="subtle">
+                                <h3 class="font-bold mb-4">Badges (UBadge)</h3>
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    <UBadge color="success" variant="subtle">Approved</UBadge>
+                                    <UBadge color="warning" variant="subtle">Pending</UBadge>
+                                    <UBadge color="error" variant="subtle">Rejected</UBadge>
+                                </div>
+                                <p class="text-xs text-muted mt-4">Used for status indicators and labeling system entities.</p>
+                            </UCard>
+
+                            <UCard variant="subtle">
+                                <h3 class="font-bold mb-4">Cards & Layouts</h3>
+                                <div class="space-y-2">
+                                    <div class="w-full bg-neutral-100 dark:bg-neutral-800 p-2 rounded text-center text-xs text-muted border border-neutral-200 dark:border-neutral-700">UCard</div>
+                                    <div class="w-full bg-neutral-100 dark:bg-neutral-800 p-2 rounded text-center text-xs text-muted border border-neutral-200 dark:border-neutral-700">UPageCard</div>
+                                </div>
+                                <p class="text-xs text-muted mt-4">Used to encapsulate data models and page headers.</p>
+                            </UCard>
+                        </div>
+                    </div>
                 </div>
             </template>
         </UTabs>

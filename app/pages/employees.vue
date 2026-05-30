@@ -23,10 +23,10 @@ definePageMeta({
     title: 'Employee Directory',
     description: 'Manage employee profiles, salaries, and system roles.',
     isTable: true,
-    headerActions: [
-        { label: 'Activity Logs', icon: 'i-lucide-scroll-text', event: 'viewLogs', variant: 'ghost' },
-        { label: 'Add Employee', icon: 'i-lucide-plus', event: 'addEmployee', color: 'primary' }
-    ]
+    // headerActions: [
+    //     { label: 'Activity Logs', icon: 'i-lucide-scroll-text', event: 'viewLogs', variant: 'ghost' },
+    //     { label: 'Add Employee', icon: 'i-lucide-plus', event: 'addEmployee', color: 'primary' }
+    // ]
 })
 
 // ============================================================================
@@ -133,6 +133,32 @@ function getRoleColor(role: string) {
     }
 }
 
+function getCardActions(user: User): DropdownMenuItem[][] {
+    const isActive = user.status === 'Active'
+    return [
+        [
+            {
+                label: 'Edit Profile',
+                icon: 'i-lucide-edit',
+                onSelect: () => handleEditEmployee(user)
+            },
+            {
+                label: isActive ? 'Deactivate' : 'Activate',
+                icon: isActive ? 'i-lucide-user-minus' : 'i-lucide-user-check',
+                onSelect: () => handleToggleStatus(user)
+            }
+        ],
+        [
+            {
+                label: 'Delete',
+                icon: 'i-lucide-trash',
+                color: 'error',
+                onSelect: () => handleDeleteEmployee(user)
+            }
+        ]
+    ]
+}
+
 const columns: TableColumn<User>[] = [
     {
         accessorKey: 'name',
@@ -184,32 +210,8 @@ const columns: TableColumn<User>[] = [
         id: 'actions',
         meta: { class: { td: 'text-right' } },
         cell: ({ row }) => {
-            const isActive = row.original.status === 'Active'
-            const items: DropdownMenuItem[][] = [
-                [
-                    {
-                        label: 'Edit Profile',
-                        icon: 'i-lucide-edit',
-                        onSelect: () => handleEditEmployee(row.original)
-                    },
-                    {
-                        label: isActive ? 'Deactivate' : 'Activate',
-                        icon: isActive ? 'i-lucide-user-minus' : 'i-lucide-user-check',
-                        onSelect: () => handleToggleStatus(row.original)
-                    }
-                ],
-                [
-                    {
-                        label: 'Delete',
-                        icon: 'i-lucide-trash',
-                        color: 'error',
-                        onSelect: () => handleDeleteEmployee(row.original)
-                    }
-                ]
-            ]
-
             return h(UDropdownMenu, {
-                items,
+                items: getCardActions(row.original),
                 content: { align: 'end' },
                 size: 'sm'
             }, {
@@ -227,25 +229,35 @@ const columns: TableColumn<User>[] = [
 const table = useTemplateRef('table')
 const globalFilter = ref('')
 const columnVisibility = ref({})
+
+const viewMode = ref<'list' | 'card'>('list')
 </script>
 
 <template>
-    <div v-if="!isAuthorized" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
-        <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
-        <h2 class="text-2xl font-bold">HR / Admin Access Required</h2>
-    </div>
+    <AuthGate v-if="!isAuthorized" title="HR / Admin Access Required" description="You need HR or Admin privileges to access the employee directory." icon="i-lucide-lock" />
 
     <template v-else>
         <UPageCard title="Employee Directory"
             description="Manage employee profiles, salaries, and assign system access roles."
             variant="naked" orientation="horizontal" class="border-b border-default rounded-none p-4 sm:p-6">
-            <div class="flex justify-end gap-2 flex-1">
-                <TableGlobalFilter v-model="globalFilter" />
-                <TableColumnToggle :table="table" />
+            <div class="flex flex-1 justify-end items-center gap-2">
+                <template v-if="viewMode === 'list'">
+                    <TableGlobalFilter v-model="globalFilter" />
+                    <TableColumnToggle :table="table" />
+                </template>
+                <UTabs :items="[{ icon: 'i-lucide-grid-3x3', value: 'card' }, { icon: 'i-lucide-list', value: 'list' }]"
+                v-model="viewMode" :content="false" size="xs" />
             </div>
         </UPageCard>
 
-        <UTable sticky ref="table" :data="userStore.users" :columns="columns" :loading="pending"
+        <ClientOnly>
+            <Teleport to="#header-actions-teleport">
+                <UButton label="Activity Logs" icon="i-lucide-activity" variant="ghost" color="neutral" @click="isDrawerOpen = true" />
+                <UButton label="Add Employee" icon="i-lucide-plus" @click="events.emit('addEmployee')" />
+            </Teleport>
+        </ClientOnly>
+
+        <UTable v-if="viewMode === 'list'" sticky ref="table" :data="userStore.users" :columns="columns" :loading="pending"
             v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">
             <template #empty>
                 <Empty :loading="pending" title="No Employees Found"
@@ -259,6 +271,43 @@ const columnVisibility = ref({})
                 </Empty>
             </template>
         </UTable>
+        <div v-else class="flex-1 overflow-y-auto p-4 sm:p-6 scrollbar">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <UCard v-for="user in userStore.users" :key="user.id" variant="subtle"
+                class="hover:ring-2 hover:ring-primary transition-all duration-200 shadow-sm flex flex-col h-full">
+                <template #header>
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold">{{ user.name }}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</p>
+                        </div>
+                        <UDropdownMenu :items="getCardActions(user)" :content="{ align: 'end' }" size="sm">
+                            <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" size="sm" />
+                        </UDropdownMenu>
+                    </div>
+                </template>
+                <div class="*:py-2 *:first:pt-0 *:last:pb-0 *:flex *:items-center *:justify-between text-sm divide-y divide-default">
+                    <div>
+                        <span class="text-muted">System Role</span>
+                        <UBadge :label="user.role" :color="getRoleColor(user.role)" variant="subtle" size="sm" />
+                    </div>
+                    <div>
+                        <span class="text-muted">Base Salary</span>
+                        <span class="font-semibold">₱{{ user.baseSalary.toLocaleString() }}</span>
+                    </div>
+                    <div>
+                        <span class="text-muted">Hire Date</span>
+                        <span class="font-semibold">{{ new Date(user.hireDate).toLocaleDateString() }}</span>
+                    </div>
+                    <div>
+                        <span class="text-muted">Status</span>
+                        <UBadge :label="user.status" :color="user.status === 'Active' ? 'success' : 'neutral'" variant="subtle" size="sm" />
+                    </div>
+                </div>
+            </UCard>
+        </div>
+        </div>
 
         <UserModal v-model:open="isAddModalOpen" @submit="handleAddEmployee" />
 

@@ -70,7 +70,7 @@ const scheduleColumns: TableColumn<any>[] = [
         header: 'Status',
         cell: ({ row }) => {
             const status = row.getValue('status') as string
-            return h(UBadge, { label: status, color: getStatusColor(status), variant: 'subtle', size: 'xs' })
+            return h(UBadge, { label: status, color: getStatusColor(status), variant: 'subtle', size: 'sm' })
         }
     }
 ]
@@ -121,14 +121,8 @@ function getStatusColor(status: string) {
 </script>
 
 <template>
-    <div class="p-6 max-w-6xl mx-auto w-full h-full">
-        <div v-if="!isEmployeeMode" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
-            <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
-            <h2 class="text-2xl font-bold">Employee Access Required</h2>
-            <p class="text-gray-500 max-w-md">
-                This self-service dashboard is only available to employees.
-            </p>
-        </div>
+    <UContainer>
+        <AuthGate v-if="!isEmployeeMode" title="Employee Access Required" description="This self-service dashboard is only available to employees." icon="i-lucide-lock" />
 
         <div v-else-if="!isPending && !loan" class="flex flex-col items-center justify-center h-full gap-4 text-center">
             <UIcon name="i-lucide-file-x" class="w-16 h-16 text-gray-400" />
@@ -154,15 +148,15 @@ function getStatusColor(status: string) {
 
             <!-- Key Metrics Banner -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <UCard class="bg-gray-50 dark:bg-gray-900 border-none ring-0">
-                    <p class="text-sm text-gray-500 font-medium mb-1">Approved Amount</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">₱{{ (loan.approvedAmount || loan.requestedAmount).toLocaleString() }}</p>
+                <UCard variant="soft" class="bg-violet-50 dark:bg-violet-900/20">
+                    <p class="text-sm text-violet-500 font-medium mb-1">Approved Amount</p>
+                    <p class="text-2xl font-bold text-violet-900 dark:text-violet-300">₱{{ (loan.approvedAmount || loan.requestedAmount).toLocaleString() }}</p>
                 </UCard>
-                <UCard class="bg-primary-50 dark:bg-primary-950/20 border-none ring-0">
+                <UCard variant="soft" class="bg-primary-50 dark:bg-primary-950/20">
                     <p class="text-sm text-primary-600 dark:text-primary-400 font-medium mb-1">Total Paid</p>
                     <p class="text-2xl font-bold text-primary-700 dark:text-primary-300">₱{{ totalPaid.toLocaleString() }}</p>
                 </UCard>
-                <UCard class="bg-error-50 dark:bg-error-950/20 border-none ring-0">
+                <UCard variant="soft" class="bg-error-50 dark:bg-error-950/20">
                     <p class="text-sm text-error-600 dark:text-error-400 font-medium mb-1">Outstanding Balance</p>
                     <p class="text-2xl font-bold text-error-700 dark:text-error-300">₱{{ outstandingBalance.toLocaleString() }}</p>
                 </UCard>
@@ -171,8 +165,8 @@ function getStatusColor(status: string) {
             <!-- Tabs -->
             <UTabs :items="tabs" class="mt-8">
                 <template #schedule>
-                    <UCard class="mt-4 ring-0 border border-gray-200 dark:border-gray-800 shadow-none">
-                        <div v-if="schedules.length === 0" class="text-center py-8 text-gray-500">
+                    <UCard variant="subtle" :ui="{ body: 'p-0 sm:p-0' }">
+                        <div v-if="schedules.length === 0" class="text-center py-16 text-muted">
                             No schedule available yet. (Loan must be disbursed first).
                         </div>
                         <UTable v-else :data="schedules" :columns="scheduleColumns" />
@@ -180,8 +174,8 @@ function getStatusColor(status: string) {
                 </template>
                 
                 <template #ledger>
-                    <UCard class="mt-4 ring-0 border border-gray-200 dark:border-gray-800 shadow-none">
-                        <div v-if="ledger.length === 0" class="text-center py-8 text-gray-500">
+                    <UCard variant="subtle" :ui="{ body: 'p-0 sm:p-0' }">
+                        <div v-if="ledger.length === 0" class="text-center py-16 text-muted">
                             No transactions recorded yet.
                         </div>
                         <UTable v-else :data="ledger" :columns="ledgerColumns" />
@@ -189,5 +183,5 @@ function getStatusColor(status: string) {
                 </template>
             </UTabs>
         </div>
-    </div>
+    </UContainer>
 </template>

@@ -105,10 +105,10 @@ const headerActions = computed(() => {
         }">
             <template #header>
                 <div class="flex items-end gap-2.5">
-                    <UIcon name="i-ph-car-duotone" class="size-8 shrink-0 text-primary" />
+                    <UIcon name="i-lucide-wand" class="size-8 shrink-0 text-primary" />
                     <span v-if="!isCollapsed"
-                        class="font-black text-neutral-900 dark:text-white tracking-tight">Park<span
-                            class="text-primary">Spot</span></span>
+                        class="font-black text-neutral-900 dark:text-white tracking-tight">Agent<span
+                            class="text-primary">Kit</span></span>
                 </div>
             </template>
 

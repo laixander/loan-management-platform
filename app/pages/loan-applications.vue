@@ -20,10 +20,10 @@ import ConfirmationModal from '~/components/ConfirmationModal.vue'
 definePageMeta({
     title: 'Loan Applications',
     isTable: true,
-    headerActions: [
-        { label: 'Activity Logs', icon: 'i-lucide-scroll-text', event: 'viewLogs', variant: 'ghost' },
-        { label: 'New Application', icon: 'i-lucide-plus', event: 'addApplication', color: 'primary' }
-    ]
+    // headerActions: [
+    //     { label: 'Activity Logs', icon: 'i-lucide-scroll-text', event: 'viewLogs', variant: 'ghost' },
+    //     { label: 'New Application', icon: 'i-lucide-plus', event: 'addApplication', color: 'primary' }
+    // ]
 })
 
 // ============================================================================
@@ -132,6 +132,58 @@ function getStatusColor(status: string) {
     }
 }
 
+function getCardActions(app: LoanApplication): DropdownMenuItem[][] {
+    const status = app.status
+    
+    const actionGroup: DropdownMenuItem[] = [
+        {
+            label: 'Edit',
+            icon: 'i-lucide-edit',
+            onSelect: () => handleEditApplication(app)
+        }
+    ]
+
+    // Quick actions based on status
+    if (status === 'Pending') {
+        actionGroup.push({
+            label: 'Mark Under Review',
+            icon: 'i-lucide-eye',
+            onSelect: () => handleStatusChange(app, 'Under Review')
+        })
+    }
+    if (status === 'Under Review' || status === 'Pending') {
+        actionGroup.push({
+            label: 'Approve',
+            icon: 'i-lucide-check-circle',
+            onSelect: () => handleStatusChange(app, 'Approved')
+        })
+        actionGroup.push({
+            label: 'Reject',
+            icon: 'i-lucide-x-circle',
+            onSelect: () => handleStatusChange(app, 'Rejected')
+        })
+    }
+    if (status === 'Approved') {
+        actionGroup.push({
+            label: 'Disburse Funds',
+            icon: 'i-lucide-banknote',
+            onSelect: () => handleStatusChange(app, 'Disbursed')
+        })
+    }
+
+    return [
+        actionGroup,
+        [
+            {
+                label: 'Delete',
+                icon: 'i-lucide-trash',
+                color: 'error',
+                onSelect: () => handleDelete(app)
+            }
+        ]
+    ]
+}
+
 const columns: TableColumn<LoanApplication>[] = [
     {
         accessorKey: 'loanRef',
@@ -189,58 +241,8 @@ const columns: TableColumn<LoanApplication>[] = [
             }
         },
         cell: ({ row }) => {
-            const status = row.original.status
-            
-            const actionGroup: DropdownMenuItem[] = [
-                {
-                    label: 'Edit',
-                    icon: 'i-lucide-edit',
-                    onSelect: () => handleEditApplication(row.original)
-                }
-            ]
-
-            // Quick actions based on status
-            if (status === 'Pending') {
-                actionGroup.push({
-                    label: 'Mark Under Review',
-                    icon: 'i-lucide-eye',
-                    onSelect: () => handleStatusChange(row.original, 'Under Review')
-                })
-            }
-            if (status === 'Under Review' || status === 'Pending') {
-                actionGroup.push({
-                    label: 'Approve',
-                    icon: 'i-lucide-check-circle',
-                    onSelect: () => handleStatusChange(row.original, 'Approved')
-                })
-                actionGroup.push({
-                    label: 'Reject',
-                    icon: 'i-lucide-x-circle',
-                    onSelect: () => handleStatusChange(row.original, 'Rejected')
-                })
-            }
-            if (status === 'Approved') {
-                actionGroup.push({
-                    label: 'Disburse Funds',
-                    icon: 'i-lucide-banknote',
-                    onSelect: () => handleStatusChange(row.original, 'Disbursed')
-                })
-            }
-
-            const items: DropdownMenuItem[][] = [
-                actionGroup,
-                [
-                    {
-                        label: 'Delete',
-                        icon: 'i-lucide-trash',
-                        color: 'error',
-                        onSelect: () => handleDelete(row.original)
-                    }
-                ]
-            ]
-
             return h(UDropdownMenu, {
-                items,
+                items: getCardActions(row.original),
                 content: { align: 'end' },
                 size: 'sm'
             }, {
@@ -258,28 +260,51 @@ const columns: TableColumn<LoanApplication>[] = [
 const table = useTemplateRef('table')
 const globalFilter = ref('')
 const columnVisibility = ref({})
+
+const viewMode = ref<'list' | 'card'>('list')
 </script>
 
 <template>
-    <div v-if="!isAuthorized" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
-        <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
-        <h2 class="text-2xl font-bold">Loan Officer / Admin Access Required</h2>
-    </div>
+    <AuthGate v-if="!isAuthorized" title="Loan Officer / Admin Access Required" description="You need Loan Officer or Admin privileges to review and process applications." icon="i-lucide-lock" />
 
     <template v-else>
         <UPageCard title="Loan Applications"
         description="View and process all loan requests from employees across the organization."
         variant="naked" orientation="horizontal" class="border-b border-default rounded-none p-4 sm:p-6">
-        <div class="flex justify-end gap-2 flex-1">
-            <TableGlobalFilter v-model="globalFilter" />
-            <TableColumnToggle :table="table" />
-        </div>
-    </UPageCard>
+            <div class="flex flex-1 justify-end items-center gap-2">
+                <template v-if="viewMode === 'list'">
+                    <TableGlobalFilter v-model="globalFilter" />
+                    <TableColumnToggle :table="table" />
+                </template>
+                <UTabs :items="[{ icon: 'i-lucide-grid-3x3', value: 'card' }, { icon: 'i-lucide-list', value: 'list' }]"
+                v-model="viewMode" :content="false" size="xs" />
+            </div>
+        </UPageCard>
 
-    <UTable sticky ref="table" :data="loanStore.applications" :columns="columns" :loading="pending"
-        v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">
-        <template #empty>
-            <Empty :loading="pending" title="No Applications"
+        <ClientOnly>
+            <Teleport to="#header-actions-teleport">
+                <UButton label="Activity Logs" icon="i-lucide-activity" variant="ghost" color="neutral" @click="isDrawerOpen = true" />
+                <UButton label="New Application" icon="i-lucide-plus" @click="events.emit('addApplication')" />
+            </Teleport>
+        </ClientOnly>
+
+        <UTable v-if="viewMode === 'list'" sticky ref="table" :data="loanStore.applications" :columns="columns" :loading="pending"
+            v-model:column-visibility="columnVisibility" v-model:global-filter="globalFilter" :ui="{ th: 'sm:px-6', td: 'sm:px-6' }" class="flex-1 scrollbar">
+            <template #empty>
+                <Empty :loading="pending" title="No Applications"
+                    description="There are currently no loan applications in the system."
+                    icon="i-lucide-file-text" loading-title="Loading Applications"
+                    loading-description="Please wait while we fetch the latest records.">
+                    <template #action>
+                        <UButton label="New Application" icon="i-lucide-plus" color="primary" size="lg"
+                            @click="events.emit('addApplication')" />
+                    </template>
+                </Empty>
+            </template>
+        </UTable>
+
+        <div v-else class="flex-1 overflow-y-auto scrollbar p-4 sm:p-6">
+            <Empty v-if="loanStore.applications.length === 0" :loading="pending" title="No Applications"
                 description="There are currently no loan applications in the system."
                 icon="i-lucide-file-text" loading-title="Loading Applications"
                 loading-description="Please wait while we fetch the latest records.">
@@ -288,8 +313,45 @@ const columnVisibility = ref({})
                         @click="events.emit('addApplication')" />
                 </template>
             </Empty>
-        </template>
-    </UTable>
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <UCard v-for="app in loanStore.applications" :key="app.id" variant="subtle"
+                    class="hover:ring-2 hover:ring-primary transition-all duration-200 shadow-sm flex flex-col h-full">
+                    <template #header>
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ app.loanRef }}</p>
+                                <h3 class="text-lg font-bold">{{ app.employeeName }}</h3>
+                            </div>
+                            <UDropdownMenu :items="getCardActions(app)" :content="{ align: 'end' }" size="sm">
+                                <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" size="sm" />
+                            </UDropdownMenu>
+                        </div>
+                    </template>
+                    <div class="*:py-2 *:first:pt-0 *:last:pb-0 *:flex *:items-center *:justify-between text-sm divide-y divide-default">
+                        <div>
+                            <span class="text-muted">Loan Type</span>
+                            <span class="font-medium">{{ app.loanType }}</span>
+                        </div>
+                        <div>
+                            <span class="text-muted">Status</span>
+                            <UBadge :label="app.status" :color="getStatusColor(app.status)" variant="subtle" size="sm" />
+                        </div>
+                        <div>
+                            <span class="text-muted">Amount</span>
+                            <span class="font-semibold">₱{{ app.requestedAmount.toLocaleString() }}</span>
+                        </div>
+                        <div>
+                            <span class="text-muted">Term</span>
+                            <span class="font-semibold">{{ app.termMonths }} mos</span>
+                        </div>
+                        <div>
+                            <span class="text-muted">Date</span>
+                            <span class="font-semibold">{{ new Date(app.applicationDate).toLocaleDateString() }}</span>
+                        </div>
+                    </div>
+                </UCard>
+            </div>
+        </div>
 
         <LoanApplicationModal v-model:open="isAddModalOpen" @submit="handleAddApplication" />
 

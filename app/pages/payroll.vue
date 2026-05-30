@@ -13,7 +13,6 @@ import { useAppToast } from '~/composables/useAppToast'
 definePageMeta({
     title: 'Payroll Deductions',
     description: 'Manage and process employee loan deductions per payroll cycle.',
-    isTable: true
 })
 
 // ============================================================================
@@ -83,7 +82,7 @@ const columns: TableColumn<any>[] = [
         cell: ({ row }) => {
             const status = row.getValue('status') as string
             const color = status === 'Processed' ? 'success' : status === 'Scheduled' ? 'warning' : 'neutral'
-            return h(UBadge, { label: status, color, variant: 'subtle', size: 'xs' })
+            return h(UBadge, { label: status, color, variant: 'subtle' })
         }
     }
 ]
@@ -135,49 +134,49 @@ const isAuthorized = computed(() => ['HR', 'Finance', 'Admin'].includes(authStor
 </script>
 
 <template>
-    <div v-if="!isAuthorized" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
-        <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
-        <h2 class="text-2xl font-bold">Authorized Personnel Only</h2>
-        <p class="text-neutral-500">You need HR, Finance, or Admin privileges to view payroll deductions.</p>
-    </div>
+    <AuthGate v-if="!isAuthorized" title="Authorized Personnel Only" description="You need HR, Finance, or Admin privileges to view payroll deductions." icon="i-lucide-lock" />
 
-    <div v-else class="p-6 max-w-7xl mx-auto w-full h-full space-y-6">
+    <UContainer v-else class="space-y-6">
+        <UPageCard title="Payroll" description="Manually process payroll deductions for the current cycle." variant="naked"
+            orientation="horizontal" class="rounded-none" />
         
         <!-- Header Controls -->
-        <div class="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
-            <div class="flex items-center gap-2">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Select Payroll Cycle:</span>
-                <USelect v-model="selectedCycle" :items="availableCycles" class="w-48" />
-            </div>
-            
-            <UButton 
-                v-if="canProcessCycle"
-                label="Process Deductions" 
-                icon="i-lucide-play-circle" 
-                color="primary" 
-                @click="processCycle" 
-            />
-        </div>
+        <ClientOnly>
+            <Teleport to="#header-actions-teleport">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Select Payroll Cycle:</span>
+                    <USelect v-model="selectedCycle" :items="availableCycles" class="w-48" />
+                </div>
+                
+                <UButton 
+                    v-if="canProcessCycle"
+                    label="Process Deductions" 
+                    icon="i-lucide-play-circle" 
+                    color="primary" 
+                    @click="processCycle" 
+                />
+            </Teleport>
+        </ClientOnly>
 
         <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <UCard variant="subtle" class="border border-warning-200 dark:border-warning-900 bg-warning-50 dark:bg-warning-950/20">
+            <UCard variant="subtle" class="ring-warning-200 dark:ring-warning-900 bg-warning-50 dark:bg-warning-950/20">
                 <p class="text-sm text-warning-700 dark:text-warning-400 font-medium mb-1">Scheduled for Deduction</p>
                 <p class="text-2xl font-bold text-warning-800 dark:text-warning-300">₱{{ totalScheduledAmount.toLocaleString() }}</p>
             </UCard>
-            <UCard variant="subtle" class="border border-success-200 dark:border-success-900 bg-success-50 dark:bg-success-950/20">
+            <UCard variant="subtle" class="ring-success-200 dark:ring-success-900 bg-success-50 dark:bg-success-950/20">
                 <p class="text-sm text-success-700 dark:text-success-400 font-medium mb-1">Processed</p>
                 <p class="text-2xl font-bold text-success-800 dark:text-success-300">₱{{ totalProcessedAmount.toLocaleString() }}</p>
             </UCard>
         </div>
 
         <!-- Data Table -->
-        <UCard class="ring-0 border border-gray-200 dark:border-gray-800 shadow-none">
-            <div v-if="filteredDeductions.length === 0" class="text-center py-12 text-gray-500">
-                <UIcon name="i-lucide-inbox" class="w-12 h-12 mx-auto mb-3 text-gray-400" />
+        <UCard variant="subtle" :ui="{ body: 'p-0 sm:p-0' }">
+            <div v-if="filteredDeductions.length === 0" class="text-center py-16 text-muted">
+                <UIcon name="i-lucide-inbox" class="w-12 h-12 mx-auto mb-3" />
                 No deductions found for this cycle.
             </div>
             <UTable v-else :data="filteredDeductions" :columns="columns" />
         </UCard>
-    </div>
+    </UContainer>
 </template>

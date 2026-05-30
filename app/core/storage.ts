@@ -9,7 +9,7 @@ export const useStorage = () => {
      */
     const getItem = <T>(key: string): T | null => {
         if (import.meta.server) return null
-        
+
         try {
             const item = localStorage.getItem(key)
             return item ? JSON.parse(item) as T : null
@@ -24,7 +24,7 @@ export const useStorage = () => {
      */
     const setItem = <T>(key: string, value: T): void => {
         if (import.meta.server) return
-        
+
         try {
             localStorage.setItem(key, JSON.stringify(value))
         } catch (e) {
@@ -45,7 +45,7 @@ export const useStorage = () => {
      */
     const clearDemoData = (): void => {
         if (import.meta.server) return
-        
+
         const keys = Object.keys(localStorage)
         for (const key of keys) {
             if (key.startsWith('demo-')) {

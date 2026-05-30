@@ -88,6 +88,7 @@ const items = computed<NavigationMenuItem[]>(() => {
             label: 'Employee Self-Service',
             icon: 'i-lucide-user',
             defaultOpen: true,
+            type: 'trigger',
             children: [
                 {
                     label: 'My Loans',
@@ -216,6 +217,9 @@ const headerActions = computed(() => {
                         :icon="action.icon" :color="(action.color as any) || 'neutral'"
                         :variant="(action.variant as any) || 'solid'" :size="(action.size as any) || 'md'"
                         @click="action.event ? events.emit(action.event) : null" />
+
+                    <!-- Dynamic teleport target for pages that need reactive header actions -->
+                    <div id="header-actions-teleport" class="flex items-center gap-2"></div>
                 </div>
             </div>
 

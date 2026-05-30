@@ -85,11 +85,7 @@ const columnVisibility = ref({})
 </script>
 
 <template>
-    <div v-if="!isAuthorized" class="flex flex-col items-center justify-center h-full flex-1 gap-4 text-center p-6">
-        <UIcon name="i-lucide-shield-alert" class="w-16 h-16 text-warning" />
-        <h2 class="text-2xl font-bold">Admin Access Required</h2>
-        <p class="text-muted">You do not have permission to view the global audit ledger.</p>
-    </div>
+    <AuthGate v-if="!isAuthorized" title="Admin Access Required" description="You do not have permission to view the global audit ledger." icon="i-lucide-lock" />
 
     <template v-else>
         <UPageCard title="Global Audit Ledger"

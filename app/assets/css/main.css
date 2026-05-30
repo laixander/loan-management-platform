@@ -1,6 +1,7 @@
 @import "./fonts.css";
 @import "tailwindcss" theme(static);
 @import "@nuxt/ui";
+@plugin "@tailwindcss/typography";
 
 @source inline("{group-hover:,,}{bg,text,ring,border,to,from}-{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,100,200,300,400,500,600,700,800,900,950}/10");
 @source inline("{group-hover:,,}{bg,text,ring,border,to,from}-{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,100,200,300,400,500,600,700,800,900,950}");

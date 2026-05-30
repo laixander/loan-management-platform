@@ -33,6 +33,19 @@ interface ChangelogEntry {
 const changelogs: ChangelogEntry[] = [
     {
         date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+        version: 'v0.1.4',
+        title: 'Documentation Pipeline & Component Security',
+        description: 'Automated documentation extraction, resolved component slot bugs, and improved component-level security with AuthGate.',
+        changes: [
+            { type: 'refactor', text: 'Extracted massive documentation arrays into a dedicated utils/docsData.ts file for cleaner Vue components.' },
+            { type: 'feature', text: 'Created an automated Node script to parse, sanitize (strip Markdown alerts), and sequentially sort documentation files into UI data arrays.' },
+            { type: 'fix', text: 'Resolved TypeScript compilation error in UAccordion by updating the deprecated slot name from #item to #content.' },
+            { type: 'feature', text: 'Implemented global AuthGate wrapper components for fine-grained role-based access control inside views.' },
+            { type: 'refactor', text: 'Migrated header actions to Teleport blocks to simplify layout state management.' }
+        ]
+    },
+    {
+        date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
         version: 'v0.1.3',
         title: 'Documentation Enhancements & UI Polish',
         description: 'Finalized technical documentation views, optimized component structures, and resolved various UI state bugs across reports and presentation modes.',
@@ -115,10 +128,10 @@ function getBadgeColor(type: string) {
             <div class="absolute -top-18 right-4">
                 <UColorModeButton color="primary" />
             </div>
-            <UBadge label="System Updates" icon="i-lucide-file-text" variant="subtle" color="primary" size="lg" class="rounded-full px-3 py-1.5 w-fit" />
+            <UBadge label="Changelog" icon="i-lucide-file-text" variant="subtle" color="primary" size="lg" class="rounded-full px-3 py-1.5 w-fit" />
             <div class="flex flex-col gap-3 mt-6">
                 <h1 class="text-3xl sm:text-5xl text-pretty font-bold text-highlighted">
-                    Changelog &amp; <span class="text-primary-600 dark:text-primary-400">Release Notes</span>
+                    System Updates &amp; <span class="text-primary-600 dark:text-primary-400">Release Notes</span>
                 </h1>
                 <p class="text-lg text-pretty text-primary-600 dark:text-primary-700 font-light">
                     Keep track of all new features, improvements, and architectural updates to the Loan Management Platform.
